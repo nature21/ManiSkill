@@ -8,6 +8,10 @@ from mani_skill.envs.sapien_env import BaseEnv
 from mani_skill.envs.scene import ManiSkillScene
 from mani_skill.utils.structs.pose import to_sapien_pose
 import sapien.physx as physx
+
+from mplib.pymp import Pose
+
+
 OPEN = 1
 CLOSED = -1
 
@@ -78,7 +82,7 @@ class PandaArmMotionPlanningSolver:
             joint_vel_limits=np.ones(7) * self.joint_vel_limits,
             joint_acc_limits=np.ones(7) * self.joint_acc_limits,
         )
-        planner.set_base_pose(np.hstack([self.base_pose.p, self.base_pose.q]))
+        planner.set_base_pose(Pose(self.base_pose.p, self.base_pose.q))
         return planner
 
     def follow_path(self, result, refine_steps: int = 0):
@@ -106,12 +110,13 @@ class PandaArmMotionPlanningSolver:
         if self.grasp_pose_visual is not None:
             self.grasp_pose_visual.set_pose(pose)
         pose = sapien.Pose(p=pose.p, q=pose.q)
-        result = self.planner.plan_qpos_to_pose(
-            np.concatenate([pose.p, pose.q]),
+        result = self.planner.plan_pose(
+            pose,
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            use_point_cloud=self.use_point_cloud,
+            # use_point_cloud=self.use_point_cloud,
             wrt_world=True,
+            verbose=True
         )
         if result["status"] != "Success":
             print(result["status"])
@@ -131,17 +136,17 @@ class PandaArmMotionPlanningSolver:
             self.grasp_pose_visual.set_pose(pose)
         pose = sapien.Pose(p=pose.p , q=pose.q)
         result = self.planner.plan_screw(
-            np.concatenate([pose.p, pose.q]),
+            pose,
             self.robot.get_qpos().cpu().numpy()[0],
             time_step=self.base_env.control_timestep,
-            use_point_cloud=self.use_point_cloud,
+            # use_point_cloud=self.use_point_cloud,
         )
         if result["status"] != "Success":
             result = self.planner.plan_screw(
-                np.concatenate([pose.p, pose.q]),
+                pose,
                 self.robot.get_qpos().cpu().numpy()[0],
                 time_step=self.base_env.control_timestep,
-                use_point_cloud=self.use_point_cloud,
+                # use_point_cloud=self.use_point_cloud,
             )
             if result["status"] != "Success":
                 print(result["status"])

@@ -86,7 +86,7 @@ class Pose:
 
     @classmethod
     def create_from_pq(
-        cls, p: torch.Tensor = None, q: torch.Tensor = None, device: Device = None
+        cls, p: Union[List, Array] = None, q: Union[List, Array] = None, device: Device = None
     ):
         """Creates a Pose object from a given position ``p`` and/or quaternion ``q``"""
         if p is None:

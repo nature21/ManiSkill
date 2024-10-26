@@ -129,6 +129,7 @@ def set_shader_pack(shader_config: ShaderConfig):
     """sets a global shader pack for cameras. Used only for the 3.0 SAPIEN rendering system"""
     if SAPIEN_RENDER_SYSTEM == "3.0":
         sapien.render.set_camera_shader_dir(shader_config.shader_pack)
+        sapien.render.set_viewer_shader_dir(shader_config.shader_pack)
         if shader_config.shader_pack == "minimal":
             sapien.render.set_camera_shader_dir("minimal")
             sapien.render.set_picture_format("Color", "r8g8b8a8unorm")
@@ -153,4 +154,5 @@ def set_shader_pack(shader_config: ShaderConfig):
             )
     elif SAPIEN_RENDER_SYSTEM == "3.1":
         # sapien.render.set_camera_shader_pack_name would set a global default
-        pass
+        # pass
+        raise NotImplementedError
