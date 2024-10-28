@@ -37,6 +37,8 @@ def parse_env_info(env: gym.Env):
     else:
         # gym>=0.22
         env_kwargs = env.spec.kwargs
+    # remove the not JSON serializable components
+    env_kwargs.pop("sim_config", None)
     return dict(
         env_id=env.spec.id,
         env_kwargs=env_kwargs,

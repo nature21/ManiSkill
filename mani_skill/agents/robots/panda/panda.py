@@ -8,6 +8,8 @@ import torch
 from mani_skill import PACKAGE_ASSET_DIR
 from mani_skill.agents.base_agent import BaseAgent, Keyframe
 from mani_skill.agents.controllers import *
+from mani_skill.agents.controllers.pd_joint_pos_custom import PDJointPosControllerCustomConfig
+from mani_skill.agents.controllers.pd_joint_pos_vel_custom import PDJointPosVelControllerCustomConfig
 from mani_skill.agents.registration import register_agent
 from mani_skill.utils import common, sapien_utils
 from mani_skill.utils.structs.actor import Actor
@@ -69,6 +71,12 @@ class Panda(BaseAgent):
     arm_damping = 1e2
     arm_force_limit = 100
 
+    # custom arm stiffness, damping, and force limit
+    arm_custom_stiffness = np.array([150.0] * 4 + [75.0] * 3)
+    arm_custom_damping = 2 * np.sqrt(arm_custom_stiffness)
+    arm_custom_damping[6] = arm_custom_damping[6] / 2
+    arm_custom_force_limit = np.array([100.0] * 4 + [50] * 3)
+
     gripper_stiffness = 1e3
     gripper_damping = 1e2
     gripper_force_limit = 100
@@ -84,6 +92,16 @@ class Panda(BaseAgent):
             upper=None,
             stiffness=self.arm_stiffness,
             damping=self.arm_damping,
+            force_limit=self.arm_force_limit,
+            normalize_action=False,
+        )
+        arm_pd_joint_pos_custom = PDJointPosControllerCustomConfig(
+            self.arm_joint_names,
+            lower=None,
+            upper=None,
+            stiffness=self.arm_custom_stiffness,
+            damping=self.arm_custom_damping,
+            alpha=0.1,
             force_limit=self.arm_force_limit,
             normalize_action=False,
         )
@@ -159,6 +177,16 @@ class Panda(BaseAgent):
             self.arm_force_limit,
             normalize_action=False,
         )
+        arm_pd_joint_pos_vel_custom = PDJointPosVelControllerCustomConfig(
+            self.arm_joint_names,
+            None,
+            None,
+            self.arm_custom_stiffness,
+            self.arm_custom_damping,
+            alpha=0.1,
+            force_limit=self.arm_custom_force_limit,
+            normalize_action=False,
+        )
         arm_pd_joint_delta_pos_vel = PDJointPosVelControllerConfig(
             self.arm_joint_names,
             -0.1,
@@ -188,6 +216,7 @@ class Panda(BaseAgent):
                 arm=arm_pd_joint_delta_pos, gripper=gripper_pd_joint_pos
             ),
             pd_joint_pos=dict(arm=arm_pd_joint_pos, gripper=gripper_pd_joint_pos),
+            pd_joint_pos_custom=dict(arm=arm_pd_joint_pos_custom, gripper=gripper_pd_joint_pos),
             pd_ee_delta_pos=dict(arm=arm_pd_ee_delta_pos, gripper=gripper_pd_joint_pos),
             pd_ee_delta_pose=dict(
                 arm=arm_pd_ee_delta_pose, gripper=gripper_pd_joint_pos
@@ -207,6 +236,9 @@ class Panda(BaseAgent):
             pd_joint_vel=dict(arm=arm_pd_joint_vel, gripper=gripper_pd_joint_pos),
             pd_joint_pos_vel=dict(
                 arm=arm_pd_joint_pos_vel, gripper=gripper_pd_joint_pos
+            ),
+            pd_joint_pos_vel_custom=dict(
+                arm=arm_pd_joint_pos_vel_custom, gripper=gripper_pd_joint_pos
             ),
             pd_joint_delta_pos_vel=dict(
                 arm=arm_pd_joint_delta_pos_vel, gripper=gripper_pd_joint_pos
