@@ -9,6 +9,7 @@ import sapien.physx as physx
 import torch
 from gymnasium import spaces
 from gymnasium.vector.utils import batch_space
+from sapien import PinocchioModel
 
 from mani_skill.agents.utils import (
     flatten_action_spaces,
@@ -51,6 +52,7 @@ class BaseController:
         self.articulation = articulation
         self._control_freq = control_freq
         self.scene = scene
+        self.pinocchio_model: PinocchioModel = self.articulation.create_pinocchio_model()
 
         # For action interpolation
         if sim_freq is None:  # infer from scene

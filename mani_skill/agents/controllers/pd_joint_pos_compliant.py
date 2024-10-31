@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Sequence, Union
 
 import numpy as np
+import sapien
 import torch
 from gymnasium import spaces
 
@@ -13,8 +14,8 @@ from mani_skill.utils.structs.pose import Pose
 from mani_skill.utils.structs.types import Array, DriveMode
 
 
-class PDJointPosControllerCustom(BaseController):
-    config: "PDJointPosControllerCustomConfig"
+class PDJointPosControllerCompliant(BaseController):
+    config: "PDJointPosControllerCompliantConfig"
     _start_qpos = None
     _target_qpos = None
 
@@ -36,9 +37,11 @@ class PDJointPosControllerCustom(BaseController):
 
     def set_drive_property(self):
         n = len(self.joints)
-        self.stiffness = np.broadcast_to(self.config.stiffness, n)
-        self.damping = np.broadcast_to(self.config.damping, n)
-        self.force_limit = np.broadcast_to(self.config.force_limit, n)
+        self.ee_stiffness = common.to_tensor(np.broadcast_to(self.config.ee_stiffness, 6))
+        self.ee_damping = common.to_tensor(np.broadcast_to(self.config.ee_damping, 6))
+        self.null_space_stiffness = common.to_tensor(np.broadcast_to(self.config.null_space_stiffness, n))
+        self.null_space_damping = common.to_tensor(np.broadcast_to(self.config.null_space_damping, n))
+        self.force_limit = common.to_tensor(np.broadcast_to(self.config.force_limit, n))
         self.friction = np.broadcast_to(self.config.friction, n)
         self.alpha = self.config.alpha
 
@@ -55,6 +58,7 @@ class PDJointPosControllerCustom(BaseController):
     def reset(self):
         super().reset()
         self._step = 0  # counter of simulation steps after action is set
+        self._global_step = 0  # counter of simulation steps after reset
         self._last_qvel = self.qvel.clone()
         self._last_f = None
         if self._start_qpos is None:
@@ -74,20 +78,72 @@ class PDJointPosControllerCustom(BaseController):
     def set_drive_targets(self, targets, velocity_targets=None):
         if not self.articulation.get_links()[0].disable_gravity:
             raise NotImplementedError("This controller only works with gravity disabled")
+
+        current_ee_pose = self.articulation.get_links()[7].pose
+        ee_pose_target = compute_forward_kinematics(self.pinocchio_model, 7, targets)
+        # ee_pose_target = Pose.create_from_pq(ee_pose_target.p, ee_pose_target.q)
+        # We use sapien.Pose here because it is much more efficient than maniskill.Pose for inv() operation
+        ee_pose_target = sapien.Pose(ee_pose_target.p, ee_pose_target.q)
+        ee_error = ee_pose_target * sapien.Pose(current_ee_pose.p[0].cpu().numpy(), current_ee_pose.q[0].cpu().numpy()).inv()
+        ee_error_translation = common.to_tensor(ee_error.p).reshape(1, 3)
+        # ee_error_axis, ee_error_angle = quat2axisangle(ee_error.q.cpu().numpy().reshape(-1))
+        ee_error_axis, ee_error_angle = quat2axisangle(ee_error.q.reshape(-1))
+        ee_error_axis_angle = ee_error_angle * ee_error_axis
+        ee_error_axis_angle = common.to_tensor(ee_error_axis_angle).reshape(1, 3)
+        ee_error_spatial_twist = torch.cat([ee_error_translation, ee_error_axis_angle], dim=-1)
+
+        jacobian = torch.from_numpy(compute_jacobian(self.pinocchio_model, 7, targets, local=False)).float()
+        jacobian_pinv = torch.pinverse(jacobian)
+
+        # task space control
         self._qvel = self.qvel.clone()
-        error = targets - self._start_qpos
+        ee_vel = self._qvel[:7] @ jacobian.T
+        last_ee_vel = self._last_qvel[:7] @ jacobian.T
+        # alpha = 0.1
+        # alpha = 1
+        # ee_stiffness = common.to_tensor([75] * 3 + [7.5] * 3)
+        # ee_stiffness = common.to_tensor([150] * 3 + [15] * 3)
+        # ee_damping = 2 * torch.sqrt(ee_stiffness)
+        ee_vel_momentum = self.alpha * ee_vel + (1 - self.alpha) * last_ee_vel
+        ee_f_1 = self.ee_stiffness * ee_error_spatial_twist
+        ee_f_2 = -self.ee_damping * ee_vel_momentum
+        f_task = (ee_f_1 + ee_f_2) @ jacobian
+
+        # null space control
+        # null_space_stiffness = common.to_tensor([150] * 4 + [75] * 3) / 2
+        # null_space_damping = 2 * torch.sqrt(null_space_stiffness)
+        # null_space_damping[6] = null_space_damping[6] / 2
+        null_space_error = targets - self._start_qpos
+        null_space_f_1 = self.null_space_stiffness * null_space_error
+        self._last_qvel = self._qvel * self.alpha + self._last_qvel * (1 - self.alpha)
+        null_space_f_2 = -self.null_space_damping * self._last_qvel
+        I = torch.eye(7)
+        null_space_projection = I - jacobian_pinv @ jacobian
+        f_null = (null_space_f_1 + null_space_f_2) @ null_space_projection.T
+        # f_null = 0
+
         qf = self.articulation.get_qf()
-        f_1 = common.to_tensor(self.stiffness) * error
-        self._last_qvel = self._qvel * self.alpha + self._last_qvel * (1-self.alpha)
-        if velocity_targets is None:
-            f_2 = -common.to_tensor(self.damping) * self._last_qvel
-        else:
-            f_2 = -common.to_tensor(self.damping) * (self._last_qvel - common.to_tensor(velocity_targets))
-        force_limit = common.to_tensor(self.force_limit).reshape(1, -1)
-        # print('f error: ', f_1)
-        # print('f damping: ', f_2)
-        f = f_1 + f_2
+        force_limit = self.force_limit.reshape(1, -1)
+        # print(ee_f_1, ee_f_2, qf, ee_error, ee_error_spatial_twist)
+        if self._global_step % 1000 == 0:
+            # print('ee_error: ', ee_error)
+            print('ee_error_spatial_twist: ', ee_error_spatial_twist)
+            print('ee_f_1: ', ee_f_1)
+            print('ee_f_2: ', ee_f_2)
+            print('f_task: ', f_task)
+            print('f_null: ', f_null)
+            print('-'*50)
+        f = f_task + f_null
         f = torch.clamp(f, -force_limit, force_limit)
+
+        # saturate the force
+        # delta_f_max = 10
+        # if self._last_f is not None:
+        #     difference = f - self._last_f
+        #     f = self._last_f + torch.clamp(difference, -delta_f_max, delta_f_max)
+        #     self._last_f = f
+        # else:
+        #     self._last_f = torch.zeros_like(f)
         qf[..., :7] = f
         self.articulation.set_qf(qf)
 
@@ -113,6 +169,7 @@ class PDJointPosControllerCustom(BaseController):
 
     def before_simulation_step(self):
         self._step += 1
+        self._global_step += 1
 
         # Compute the next target via a linear interpolation
         if self.config.interpolate:
@@ -130,11 +187,13 @@ class PDJointPosControllerCustom(BaseController):
 
 
 @dataclass
-class PDJointPosControllerCustomConfig(ControllerConfig):
+class PDJointPosControllerCompliantConfig(ControllerConfig):
     lower: Union[None, float, Sequence[float]]
     upper: Union[None, float, Sequence[float]]
-    stiffness: Union[float, Sequence[float]]
-    damping: Union[float, Sequence[float]]
+    ee_stiffness: Union[float, Sequence[float]]
+    ee_damping: Union[float, Sequence[float]]
+    null_space_stiffness: Union[float, Sequence[float]]
+    null_space_damping: Union[float, Sequence[float]]
     alpha: float
     force_limit: Union[float, Sequence[float]] = 1e10
     friction: Union[float, Sequence[float]] = 0.0
@@ -143,10 +202,10 @@ class PDJointPosControllerCustomConfig(ControllerConfig):
     interpolate: bool = False
     normalize_action: bool = True
     drive_mode: Union[Sequence[DriveMode], DriveMode] = "force"
-    controller_cls = PDJointPosControllerCustom
+    controller_cls = PDJointPosControllerCompliant
 
 
-class PDJointPosMimicControllerCustom(PDJointPosControllerCustom):
+class PDJointPosMimicControllerCompliant(PDJointPosControllerCompliant):
     def _get_joint_limits(self):
         joint_limits = super()._get_joint_limits()
         diff = joint_limits[0:-1] - joint_limits[1:]
@@ -154,5 +213,5 @@ class PDJointPosMimicControllerCustom(PDJointPosControllerCustom):
         return joint_limits[0:1]
 
 
-class PDJointPosMimicControllerConfig(PDJointPosControllerCustomConfig):
-    controller_cls = PDJointPosMimicControllerCustom
+class PDJointPosMimicControllerConfig(PDJointPosControllerCompliantConfig):
+    controller_cls = PDJointPosMimicControllerCompliant

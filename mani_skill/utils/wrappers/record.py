@@ -227,6 +227,7 @@ class RecordEpisode(gym.Wrapper):
         record_reward: bool = True,
         record_env_state: bool = True,
         video_fps: int = 30,
+        video_interval: int = 1,
         avoid_overwriting_video: bool = False,
         source_type: Optional[str] = None,
         source_desc: Optional[str] = None,
@@ -241,6 +242,7 @@ class RecordEpisode(gym.Wrapper):
         self._episode_id = -1
         self._video_id = -1
         self._video_steps = 0
+        self._video_interval = video_interval
         self._closed = False
 
         self.save_video_trigger = save_video_trigger
@@ -486,25 +488,26 @@ class RecordEpisode(gym.Wrapper):
             self._last_info = common.to_numpy(info)
 
         if self.save_video:
-            self._video_steps += 1
-            image = self.capture_image()
+            if self._elapsed_record_steps % self._video_interval == 0:
+                self._video_steps += 1
+                image = self.capture_image()
 
-            if self.info_on_video:
-                scalar_info = gym_utils.extract_scalars_from_info(common.to_numpy(info))
-                if isinstance(rew, torch.Tensor) and len(rew.shape) > 1:
-                    rew = rew[0]
-                rew = float(common.to_numpy(rew))
-                extra_texts = [
-                    f"reward: {rew:.3f}",
-                ]
-                image = put_info_on_image(image, scalar_info, extras=extra_texts)
+                if self.info_on_video:
+                    scalar_info = gym_utils.extract_scalars_from_info(common.to_numpy(info))
+                    if isinstance(rew, torch.Tensor) and len(rew.shape) > 1:
+                        rew = rew[0]
+                    rew = float(common.to_numpy(rew))
+                    extra_texts = [
+                        f"reward: {rew:.3f}",
+                    ]
+                    image = put_info_on_image(image, scalar_info, extras=extra_texts)
 
-            self.render_images.append(image)
-            if (
-                self.max_steps_per_video is not None
-                and self._video_steps >= self.max_steps_per_video
-            ):
-                self.flush_video()
+                self.render_images.append(image)
+                if (
+                    self.max_steps_per_video is not None
+                    and self._video_steps >= self.max_steps_per_video
+                ):
+                    self.flush_video()
         self._elapsed_record_steps += 1
         return obs, rew, terminated, truncated, info
 

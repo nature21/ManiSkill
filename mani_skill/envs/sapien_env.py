@@ -390,6 +390,8 @@ class BaseEnv(gym.Env):
         if robot_uids is not None:
             if not isinstance(robot_uids, tuple):
                 robot_uids = [robot_uids]
+            if len(robot_uids) > 1 and len(initial_agent_poses) == 1:
+                initial_agent_poses = initial_agent_poses * len(robot_uids)
             for i, robot_uid in enumerate(robot_uids):
                 if isinstance(robot_uid, type(BaseAgent)):
                     agent_cls = robot_uid
