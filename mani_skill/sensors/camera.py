@@ -135,6 +135,7 @@ class Camera(BaseSensor):
         articulation: Articulation = None,
     ):
         super().__init__(config=camera_config)
+        self.scene = scene
         entity_uid = camera_config.entity_uid
         if camera_config.mount is not None:
             self.entity = camera_config.mount
@@ -231,7 +232,7 @@ class Camera(BaseSensor):
             del images_dict["segmentation"]
         return images_dict
 
-    def get_images(self, obs) -> Tensor:
+    def get_images(self, obs) -> Dict[str, torch.Tensor]:
         return camera_observations_to_images(obs)
 
     # TODO (stao): Computing camera parameters on GPU sim is not that fast, especially with mounted cameras and for model_matrix computation.
@@ -255,7 +256,7 @@ def normalize_depth(depth, min_depth=0, max_depth=None):
 
 def camera_observations_to_images(
     observations: Dict[str, torch.Tensor], max_depth=None
-) -> List[Array]:
+) -> Dict[str, torch.Tensor]:
     """Parse images from camera observations."""
     images = dict()
     for key in observations:
