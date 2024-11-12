@@ -215,9 +215,9 @@ class ActorBuilder(SAPIENActorBuilder):
         num_actors = len(self.scene_idxs)
 
         if self.initial_pose is None:
-            logger.warn(
-                f"No initial pose set for actor builder of {self.name}, setting to default pose q=[1,0,0,0], p=[0,0,0]."
-            )
+            # logger.warn(
+            #     f"No initial pose set for actor builder of {self.name}, setting to default pose q=[1,0,0,0], p=[0,0,0]."
+            # )
             self.initial_pose = Pose.create(sapien.Pose())
         else:
             self.initial_pose = Pose.create(self.initial_pose)

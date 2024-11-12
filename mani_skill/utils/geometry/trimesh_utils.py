@@ -97,11 +97,15 @@ def get_component_mesh(component: physx.PhysxRigidBaseComponent, to_world_frame=
     return mesh
 
 
-def get_actor_visual_mesh(actor: sapien.Entity):
+def get_actor_visual_mesh(actor: sapien.Entity, to_world_frame=True):
     mesh = merge_meshes(get_actor_visual_meshes(actor))
     if mesh is None:
         return None
+    if to_world_frame:
+        T = actor.get_pose().to_transformation_matrix()
+        mesh.apply_transform(T)
     return mesh
+
 
 
 def get_articulation_meshes(

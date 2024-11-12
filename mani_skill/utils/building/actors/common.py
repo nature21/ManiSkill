@@ -7,6 +7,7 @@ from typing import Optional, Union
 import numpy as np
 import sapien
 import sapien.render
+from sapien.pysapien.physx import PhysxMaterial
 
 from mani_skill.envs.scene import ManiSkillScene
 from mani_skill.utils.building.actor_builder import ActorBuilder
@@ -70,11 +71,15 @@ def build_box(
     add_collision: bool = True,
     scene_idxs: Optional[Array] = None,
     initial_pose: Optional[Union[Pose, sapien.Pose]] = None,
+    material: PhysxMaterial=None,
+    density: float = 1000,
 ):
     builder = scene.create_actor_builder()
     if add_collision:
         builder.add_box_collision(
             half_size=half_sizes,
+            material=material,
+            density=density
         )
     builder.add_box_visual(
         half_size=half_sizes,
