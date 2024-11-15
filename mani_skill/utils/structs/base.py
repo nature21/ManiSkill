@@ -160,7 +160,7 @@ class PhysxRigidBodyComponentStruct(PhysxRigidBaseComponentStruct[T], Generic[T]
         return self.auto_compute_mass
 
     def get_cmass_local_pose(self) -> Pose:
-        return
+        return self.cmass_local_pose
 
     def get_disable_gravity(self) -> bool:
         return self.disable_gravity
