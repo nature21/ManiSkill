@@ -10,6 +10,7 @@ from abc_pickup_extra.sapien3.kinematics_utils import compute_forward_kinematics
 from concepts.math.rotationlib_wxyz import quat2axisangle
 from mani_skill.agents.controllers.base_controller import BaseController, ControllerConfig
 from mani_skill.utils import common
+from mani_skill.utils.geometry.rotation_conversions import quaternion_multiply, quaternion_invert
 from mani_skill.utils.structs.pose import Pose
 from mani_skill.utils.structs.types import Array, DriveMode
 
@@ -81,13 +82,14 @@ class PDJointPosControllerCompliant(BaseController):
 
         current_ee_pose = self.articulation.get_links()[7].pose
         ee_pose_target = compute_forward_kinematics(self.pinocchio_model, 7, targets)
-        # ee_pose_target = Pose.create_from_pq(ee_pose_target.p, ee_pose_target.q)
+        # TODO (Yuyao Liu @ 2024-11-26): the current error is not computed correctly. Refer to https://github.com/rachelholladay/franka_ros_interface/blob/kinetic/franka_ros_controllers/src/cartesian_impedance_controller.cpp
         # We use sapien.Pose here because it is much more efficient than maniskill.Pose for inv() operation
-        ee_pose_target = sapien.Pose(ee_pose_target.p, ee_pose_target.q)
-        ee_error = ee_pose_target * sapien.Pose(current_ee_pose.p[0].cpu().numpy(), current_ee_pose.q[0].cpu().numpy()).inv()
-        ee_error_translation = common.to_tensor(ee_error.p).reshape(1, 3)
-        # ee_error_axis, ee_error_angle = quat2axisangle(ee_error.q.cpu().numpy().reshape(-1))
-        ee_error_axis, ee_error_angle = quat2axisangle(ee_error.q.reshape(-1))
+        # ee_pose_target = sapien.Pose(ee_pose_target.p, ee_pose_target.q)
+        # ee_error = ee_pose_target * sapien.Pose(current_ee_pose.p[0].cpu().numpy(), current_ee_pose.q[0].cpu().numpy()).inv()
+        ee_pose_target = Pose.create_from_pq(ee_pose_target.p, ee_pose_target.q)
+        ee_error_translation = ee_pose_target.p - current_ee_pose.p
+        ee_error_q = quaternion_multiply(ee_pose_target.q, quaternion_invert(current_ee_pose.q)).cpu().numpy()
+        ee_error_axis, ee_error_angle = quat2axisangle(ee_error_q.reshape(-1))
         ee_error_axis_angle = ee_error_angle * ee_error_axis
         ee_error_axis_angle = common.to_tensor(ee_error_axis_angle).reshape(1, 3)
         ee_error_spatial_twist = torch.cat([ee_error_translation, ee_error_axis_angle], dim=-1)
