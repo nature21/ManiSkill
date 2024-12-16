@@ -96,6 +96,7 @@ class TurnFaucetEnv(BaseEnv):
             builder.set_scene_idxs(scene_idxs=[i])
             builder.initial_pose = sapien.Pose(p=[0, 0, model_info["offset"][2]])
             faucet = builder.build(name=f"{model_id}-{i}")
+            self.remove_from_state_dict_registry(faucet)
             for joint in faucet.active_joints:
                 joint.set_friction(1.0)
                 joint.set_drive_properties(0, 10.0)
@@ -120,6 +121,7 @@ class TurnFaucetEnv(BaseEnv):
             )
 
         self.faucet = Articulation.merge(self._faucets, name="faucet")
+        self.add_to_state_dict_registry(self.faucet)
         self.target_switch_link = Link.merge(self._target_switch_links, name="switch")
         self.model_offsets = common.to_tensor(self.model_offsets, device=self.device)
         self.model_offsets[:, 2] += 0.01  # small clearance
@@ -158,7 +160,7 @@ class TurnFaucetEnv(BaseEnv):
             self.faucet.set_pose(Pose.create_from_pq(p, q))
 
             # apply pose changes and update kinematics to get updated link poses.
-            if physx.is_gpu_enabled():
+            if self.gpu_sim_enabled:
                 self.scene._gpu_apply_all()
                 self.scene.px.gpu_update_articulation_kinematics()
                 self.scene.px.step()

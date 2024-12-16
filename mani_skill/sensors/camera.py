@@ -194,6 +194,8 @@ class Camera(BaseSensor):
         depth: bool = True,
         position: bool = True,
         segmentation: bool = True,
+        normal: bool = False,
+        albedo: bool = False,
         apply_texture_transforms: bool = True,
     ):
         images_dict = {}
@@ -210,6 +212,10 @@ class Camera(BaseSensor):
             if position and "position" in output_modalities:
                 required_texture_names.append(texture_name)
             if segmentation and "segmentation" in output_modalities:
+                required_texture_names.append(texture_name)
+            if normal and "normal" in output_modalities:
+                required_texture_names.append(texture_name)
+            if albedo and "albedo" in output_modalities:
                 required_texture_names.append(texture_name)
         required_texture_names = list(set(required_texture_names))
 
@@ -230,6 +236,10 @@ class Camera(BaseSensor):
             del images_dict["position"]
         if not segmentation and "segmentation" in images_dict:
             del images_dict["segmentation"]
+        if not normal and "normal" in images_dict:
+            del images_dict["normal"]
+        if not albedo and "albedo" in images_dict:
+            del images_dict["albedo"]
         return images_dict
 
     def get_images(self, obs) -> Dict[str, torch.Tensor]:

@@ -79,6 +79,7 @@ class AntRobot(BaseAgent):
 
 class AntEnv(BaseEnv):
     agent: Union[AntRobot]
+    SUPPORTED_REWARD_MODES = ("normalized_dense", "dense", "none")
 
     def __init__(self, *args, robot_uids=AntRobot, move_speed=0, **kwargs):
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
@@ -185,7 +186,7 @@ class AntEnv(BaseEnv):
             Pose.create_from_pq(p=self.agent.robot.links_map["torso"].pose.p)
         )
         # gpu requires that we manually apply this update
-        if sapien.physx.is_gpu_enabled():
+        if self.gpu_sim_enabled:
             # we update just actor pose here, no need to call apply_all/fetch_all
             self.scene.px.gpu_apply_rigid_dynamic_data()
             self.scene.px.gpu_fetch_rigid_dynamic_data()
@@ -295,11 +296,33 @@ class AntEnv(BaseEnv):
 
 @register_env("MS-AntWalk-v1", max_episode_steps=1000)
 class AntWalk(AntEnv):
+    """
+    **Task Description:**
+    Ant moves in x direction at 0.5 m/s
+
+    **Randomizations:**
+    - Ant qpos and qvel have added noise from uniform distribution [-1e-2, 1e-2]
+
+    **Success Conditions:**
+    - No specific success conditions.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, robot_uids=AntRobot, move_speed=_WALK_SPEED, **kwargs)
 
 
 @register_env("MS-AntRun-v1", max_episode_steps=1000)
 class AntRun(AntEnv):
+    """
+    **Task Description:**
+    Ant moves in x direction at 4 m/s
+
+    **Randomizations:**
+    - Ant qpos and qvel have added noise from uniform distribution [-1e-2, 1e-2]
+
+    **Success Conditions:**
+    - No specific success conditions.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, robot_uids=AntRobot, move_speed=_RUN_SPEED, **kwargs)
