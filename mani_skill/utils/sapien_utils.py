@@ -295,6 +295,16 @@ def get_cpu_actors_contacts(
     return entity_contacts
 
 
+def print_contact(contact: physx.PhysxContact):
+    print(
+        f"Contact between {contact.bodies[0].entity.get_name()} and {contact.bodies[1].entity.get_name()}"
+    )
+    for point in contact.points:
+        print(
+            f"  - Position: {point.position}, Impulse: {point.impulse}, Normal: {point.normal}"
+        )
+
+
 # -------------------------------------------------------------------------- #
 # Camera
 # -------------------------------------------------------------------------- #

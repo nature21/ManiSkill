@@ -74,6 +74,15 @@ def get_actor_visual_meshes(actor: sapien.Entity):
     return meshes
 
 
+def get_actor_meshes(actor: sapien.Entity):
+    """Get actor (collision) meshes in the world frame."""
+    meshes = []
+    comp = actor.find_component_by_type(physx.PhysxRigidBaseComponent)
+    if comp is not None:
+        meshes.extend(get_component_meshes(comp))
+    return meshes
+
+
 def merge_meshes(meshes: List[trimesh.Trimesh]):
     n, vs, fs = 0, [], []
     for mesh in meshes:
@@ -97,7 +106,7 @@ def get_component_mesh(component: physx.PhysxRigidBaseComponent, to_world_frame=
     return mesh
 
 
-def get_actor_visual_mesh(actor: sapien.Entity, to_world_frame=True):
+def get_actor_visual_mesh(actor: sapien.Entity, to_world_frame=True) -> trimesh.Trimesh:
     mesh = merge_meshes(get_actor_visual_meshes(actor))
     if mesh is None:
         return None
@@ -106,6 +115,16 @@ def get_actor_visual_mesh(actor: sapien.Entity, to_world_frame=True):
         mesh.apply_transform(T)
     return mesh
 
+
+def get_actor_mesh(actor: sapien.Entity, to_world_frame=True, visual=False) -> trimesh.Trimesh:
+    if visual:
+        mesh = merge_meshes(get_actor_visual_meshes(actor))
+    else:
+        mesh = merge_meshes(get_actor_meshes(actor))
+    if to_world_frame:
+        T = actor.get_pose().to_transformation_matrix()
+        mesh.apply_transform(T)
+    return mesh
 
 
 def get_articulation_meshes(
