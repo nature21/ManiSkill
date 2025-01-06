@@ -23,15 +23,15 @@ class TableSceneBuilder(SceneBuilder):
         scale = 1.75
 
         table_pose = sapien.Pose(q=euler2quat(0, 0, np.pi / 2))
-        # builder.add_nonconvex_collision_from_file(
-        #     filename=table_model_file,
-        #     scale=[scale] * 3,
-        #     pose=table_pose,
-        # )
-        builder.add_box_collision(
-            pose=sapien.Pose(p=[0, 0, 0.9196429 / 2]),
-            half_size=(2.418 / 2, 1.209 / 2, 0.9196429 / 2),
+        builder.add_nonconvex_collision_from_file(
+            filename=table_model_file,
+            scale=[scale] * 3,
+            pose=table_pose,
         )
+        # builder.add_box_collision(
+        #     pose=sapien.Pose(p=[0, 0, 0.9196429 / 2]),
+        #     half_size=(2.418 / 2, 1.209 / 2, 0.9196429 / 2),
+        # )
         builder.add_visual_from_file(
             filename=table_model_file, scale=[scale] * 3, pose=table_pose
         )
@@ -62,6 +62,14 @@ class TableSceneBuilder(SceneBuilder):
         self.table.set_pose(
             sapien.Pose(p=[-0.12, 0, -0.9196429], q=euler2quat(0, 0, np.pi / 2))
         )
+        if self.env.robot_uids == "galaxea_r1":
+            qpos = self.env.agent.keyframes["rest"].qpos
+            self.env.agent.reset(qpos)
+            self.env.agent.robot.set_pose(sapien.Pose([-0.8, 0, -0.92]))
+        if self.env.robot_uids == "galaxea_r1_upperbody":
+            qpos = self.env.agent.keyframes["rest"].qpos
+            self.env.agent.reset(qpos)
+            self.env.agent.robot.set_pose(sapien.Pose([-0.8, 0, -0.92]))
         if self.env.robot_uids == "panda":
             qpos = np.array(
                 [
