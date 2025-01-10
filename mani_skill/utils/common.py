@@ -18,7 +18,7 @@ from mani_skill.utils.structs.types import Array, Device
 
 
 def _batch(array: Union[Array, Sequence]):
-    if isinstance(array, (dict)):
+    if isinstance(array, dict):
         return {k: _batch(v) for k, v in array.items()}
     if isinstance(array, str):
         return array

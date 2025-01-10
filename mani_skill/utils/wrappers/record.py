@@ -395,11 +395,15 @@ class RecordEpisode(gym.Wrapper):
                         f"State dictionary is not consistent, disabling recording of environment states for {self.env}"
                     )
                     self._already_warned_about_state_dict_inconsistency = True
+            if isinstance(action, dict):
+                action_numpy = common.to_numpy(common.batch((action,)*self.num_envs))
+            else:
+                action_numpy = common.to_numpy(common.batch(action.repeat(self.num_envs, 0)))
             first_step = Step(
                 state=None,
                 observation=common.to_numpy(common.batch(obs)),
                 # note first reward/action etc. are ignored when saving trajectories to disk
-                action=common.to_numpy(common.batch(action.repeat(self.num_envs, 0))),
+                action=action_numpy,
                 reward=np.zeros(
                     (
                         1,
