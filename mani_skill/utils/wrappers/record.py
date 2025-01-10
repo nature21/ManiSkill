@@ -396,7 +396,10 @@ class RecordEpisode(gym.Wrapper):
                     )
                     self._already_warned_about_state_dict_inconsistency = True
             if isinstance(action, dict):
-                action_numpy = common.to_numpy(common.batch((action,)*self.num_envs))
+                action_repeated = action.copy()
+                for key in action_repeated:
+                    action_repeated[key] = action_repeated[key].repeat(self.num_envs, 0)
+                action_numpy = common.to_numpy(common.batch(action_repeated))
             else:
                 action_numpy = common.to_numpy(common.batch(action.repeat(self.num_envs, 0)))
             first_step = Step(
