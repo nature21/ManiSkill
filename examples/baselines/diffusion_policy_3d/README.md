@@ -12,6 +12,8 @@ cd ~/ManiSkill/examples/baselines/diffusion_policy_3d
 pip install -e .
 pip install torch torchvision torchaudio
 
+# Install vulkan following instructions: https://maniskill.readthedocs.io/en/latest/user_guide/getting_started/installation.html#vulkan
+
 cd
 # install pytorch3d for poindcloud downsampling
 git clone https://github.com/facebookresearch/pytorch3d.git
