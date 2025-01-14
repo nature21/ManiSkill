@@ -27,18 +27,18 @@ cd pytorch3d && pip install -e . # this can take more than 10 mins
 conda activate maniskill-dp3
 cd ~/ManiSkill
 
-python mani_skill/examples/motionplanning/panda/run.py -e "PickCube-v1" --traj-name="trajectory_cpu" -n 10 --record-dir "~/.maniskill/demos/PickCube-v1/motionplanning/" --sim-backend "cpu" --save-video --only-count-success
+python mani_skill/examples/motionplanning/panda/run.py -e "PickCube-v1" --traj-name="trajectory_cpu" -n 10 --sim-backend "cpu" --save-video --only-count-success
 ```
 
 ```bash
-python -m mani_skill.trajectory.replay_trajectory --traj-path ~/.maniskill/demos/PickCube-v1/motionplanning/trajectory_cpu.h5 --use-first-env-state -c pd_ee_delta_pose -o pointcloud --save-traj --num-procs 16
+python -m mani_skill.trajectory.replay_trajectory --traj-path ./demos/PickCube-v1/motionplanning/trajectory_cpu.h5 --use-first-env-state -c pd_ee_delta_pose -o pointcloud --save-traj --num-procs 16
 ```
 
 Convert ManiSkill hdf5 dataset into zarr format for DP3 training:
 ```bash
 cd ~/ManiSkill/examples/baselines/diffusion_policy_3d
 
-python dataset/convert_hdf5_to_zarr.py --num_demos 10 --zarr_dir ./data/ --hdf5_path ~/.maniskill/demos/PickCube-v1/motionplanning/trajectory_cpu.pointcloud.pd_ee_delta_pose.cpu.h5 --env_name PickCube-v1
+python dataset/convert_hdf5_to_zarr.py --num_demos 10 --zarr_dir ./data/ --hdf5_path ~/ManiSkill/demos/PickCube-v1/motionplanning/trajectory_cpu.pointcloud.pd_ee_delta_pose.cpu.h5 --env_name PickCube-v1
 ```
 
 ## Training
