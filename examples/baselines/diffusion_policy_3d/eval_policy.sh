@@ -13,7 +13,7 @@ config_name=${alg_name}
 addition_info=${3}
 seed=${4}
 exp_name=${task_name}-${alg_name}-${addition_info}
-run_dir="/root/autodl-tmp/maniskill_dp3/data/outputs/${exp_name}_seed${seed}"
+run_dir="~/.maniskill/data/outputs/${exp_name}_seed${seed}"
 
 gpu_id=${5}
 

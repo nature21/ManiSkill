@@ -194,7 +194,7 @@ class ManiSkillRunner(BaseRunner):
             use_pc_color,
             num_points,
             env_kwargs,
-            video_dir=f"/root/autodl-tmp/maniskill_dp3/runs/{run_name}/videos" if capture_video else None,
+            video_dir=f"~/.maniskill/runs/{run_name}/videos" if capture_video else None,
             wrappers=[FlattenPoindCloudObservationWrapper],
         )
 

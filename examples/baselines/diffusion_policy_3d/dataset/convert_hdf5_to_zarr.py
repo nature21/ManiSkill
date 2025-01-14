@@ -191,8 +191,8 @@ if __name__ == "__main__":
     parser.add_argument('--env_name', type=str, default='GraspCup-v1')
     parser.add_argument('--num_demos', type=int, default=150)
     parser.add_argument('--use_point_crop', type=bool, default=True)
-    parser.add_argument('--hdf5_path', type=str, default="/root/autodl-tmp/demos/150_demos_pc/GraspCup-v1/motionplanning/trajectory_cpu.pointcloud.pd_ee_delta_pose.cpu.h5")
-    parser.add_argument('--zarr_dir', type=str, default="/root/autodl-tmp/test/")
+    parser.add_argument('--hdf5_path', type=str, default="~/.maniskill/demos/GraspCup-v1/motionplanning/trajectory_cpu.pointcloud.pd_ee_delta_pose.cpu.h5")
+    parser.add_argument('--zarr_dir', type=str, default="./data/")
 
     args = parser.parse_args()
     main(args)
