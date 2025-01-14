@@ -102,6 +102,7 @@ def make_eval_envs(
                     env_kwargs,
                 )
     else:
+        # TODO: The following code should be modified
         env = gym.make(
             env_id,
             num_envs=num_envs,
