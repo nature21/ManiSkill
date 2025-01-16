@@ -14,6 +14,7 @@ from mani_skill.agents.controllers.pd_joint_pos_vel_custom import PDJointPosVelC
 from mani_skill.agents.registration import register_agent
 from mani_skill.utils import common, sapien_utils
 from mani_skill.utils.structs.actor import Actor
+from mani_skill.utils.structs.pose import Pose
 
 
 @register_agent()
@@ -90,6 +91,8 @@ class Panda(BaseAgent):
     gripper_stiffness = 1e3
     gripper_damping = 1e2
     gripper_force_limit = 100
+
+    attach_drive = None
 
     @property
     def _controller_configs(self):
@@ -346,3 +349,23 @@ class Panda(BaseAgent):
     #         entity_uid="panda_hand",
     #     )
     # ]
+
+    def attach_object(self, attached_obj: Actor):
+        """
+        Attach an object to tcp
+        Args:
+            attached_obj: The object to attach
+        """
+
+        # create a joint and lock motion
+        self.attach_drive = self.scene.create_drive(
+            self.tcp, Pose.create_from_pq(None, None),
+            attached_obj, attached_obj.pose.inv() * self.tcp.pose
+        )
+        self.attach_drive.lock_motion()
+
+    def detach_object(self):
+        """
+        Detach an object from tcp
+        """
+        self.attach_drive.remove_drive()

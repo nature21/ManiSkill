@@ -64,6 +64,12 @@ class BaseStruct(Generic[T]):
         """The physx system objects managed by this dataclass are working on"""
         return self.scene.px
 
+    @property
+    def sp(self):
+        """The sapien objects associated with this struct"""
+        assert len(self._objs) == 1, "Only one object is supported for this property"
+        return self._objs[0]
+
 
 @dataclass
 class PhysxRigidBaseComponentStruct(BaseStruct[T], Generic[T]):

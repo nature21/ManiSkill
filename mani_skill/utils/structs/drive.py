@@ -189,20 +189,16 @@ class Drive(PhysxJointComponentStruct[physx.PhysxDriveComponent]):
     @before_gpu_init
     def lock_motion(self):
         for drive in self._objs:
-            # Assuming `drive` is an instance of PhysxDriveComponent
-            # Lock translational motion along x, y, and z axes
-            drive.set_drive_property_x(stiffness=1e9, damping=1e9, mode="force")
-            drive.set_drive_property_y(stiffness=1e9, damping=1e9, mode="force")
-            drive.set_drive_property_z(stiffness=1e9, damping=1e9, mode="force")
+            drive.set_drive_property_x(stiffness=1e9, damping=1e8, force_limit=1e10)
+            drive.set_drive_property_y(stiffness=1e9, damping=1e8, force_limit=1e10)
+            drive.set_drive_property_z(stiffness=1e9, damping=1e8, force_limit=1e10)
+            drive.set_drive_property_twist(stiffness=1e9, damping=1e8, force_limit=1e10)
+            drive.set_drive_property_slerp(stiffness=1e9, damping=1e8, force_limit=1e10)
+            drive.set_drive_target(drive.get_drive_target())
 
-            # Lock rotational motion (slerp, swing, and twist)
-            drive.set_drive_property_slerp(stiffness=1e9, damping=1e9, mode="force")
-            drive.set_drive_property_swing(stiffness=1e9, damping=1e9, mode="force")
-            drive.set_drive_property_twist(stiffness=1e9, damping=1e9, mode="force")
-
-            # Optionally, set limits to prevent any motion
-            drive.set_limit_x(low=0.0, high=0.0)
-            drive.set_limit_y(low=0.0, high=0.0)
-            drive.set_limit_z(low=0.0, high=0.0)
-            drive.set_limit_twist(low=0.0, high=0.0)
-            drive.set_limit_cone(angle_y=0.0, angle_z=0.0)
+    @before_gpu_init
+    def remove_drive(self):
+        for drive in self._objs:
+            child_entity = drive.entity
+            child_entity.remove_component(drive)
+        self._objs = []
