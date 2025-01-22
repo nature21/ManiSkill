@@ -803,7 +803,7 @@ class ManiSkillScene:
         else:
             raise ValueError(f"Expected Actor or Articulation, got {object}")
 
-    def get_sim_state(self) -> torch.Tensor:
+    def get_sim_state(self) -> Dict:
         """Get simulation state. Returns a dictionary with two nested dictionaries "actors" and "articulations".
         In the nested dictionaries they map the actor/articulation name to a vector of shape (N, D) for N parallel
         environments and D dimensions of padded state per environment.
@@ -1114,3 +1114,7 @@ class ManiSkillScene:
                 )["rgb"]
                 image_data[name] = rgb
         return image_data
+
+    @property
+    def sp(self):
+        return self.sub_scenes[0]

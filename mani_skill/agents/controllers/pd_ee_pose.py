@@ -25,6 +25,7 @@ class PDEEPosController(PDJointPosController):
 
     config: "PDEEPosControllerConfig"
     _target_pose = None
+    _target_qpos = None
 
     def _check_gpu_sim_works(self):
         assert (
@@ -115,16 +116,19 @@ class PDEEPosController(PDJointPosController):
             self.set_drive_targets(self._target_qpos)
 
     def get_state(self) -> dict:
-        if self.config.use_target:
-            return {"target_pose": self._target_pose.raw_pose}
+        if self.config.use_target or True:
+            return {"target_pose": self._target_pose.raw_pose,
+                    "target_qpos": self._target_qpos}
         return {}
 
     def set_state(self, state: dict):
-        if self.config.use_target:
+        if self.config.use_target or True:
             target_pose = state["target_pose"]
             self._target_pose = Pose.create_from_pq(
                 target_pose[:, :3], target_pose[:, 3:]
             )
+            self._target_qpos = state["target_qpos"]
+            self.set_drive_targets(self._target_qpos)
 
 
 # TODO (stao): This config should really inherit the pd joint pos controller config

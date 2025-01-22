@@ -61,6 +61,12 @@ class PDJointPosVelController(PDJointPosController):
         self._target_qvel = action[:, nq:]
         self.set_drive_velocity_targets(self._target_qvel)
 
+    def get_state(self):
+        raise NotImplementedError
+
+    def set_state(self, state):
+        raise NotImplementedError
+
 
 @dataclass
 class PDJointPosVelControllerConfig(PDJointPosControllerConfig):

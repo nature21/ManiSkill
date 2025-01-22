@@ -47,6 +47,13 @@ class MultiAgent(BaseAgent, Generic[T]):
     def controller(self):
         return {uid: agent.controller for uid, agent in self.agents_dict.items()}
 
+    def get_controller_state(self):
+        return {uid: agent.controller.get_state() for uid, agent in self.agents_dict.items()}
+
+    def set_controller_state(self, controller_state):
+        for uid, agent in self.agents_dict.items():
+            agent.controller.set_state(controller_state[uid])
+
     @property
     def action_space(self):
         return spaces.Dict(

@@ -14,7 +14,7 @@ import sapien.utils.viewer.control_window
 import torch
 from gymnasium.vector.utils import batch_space
 
-from mani_skill import PACKAGE_ASSET_DIR, logger
+from mani_skill import logger
 from mani_skill.agents import REGISTERED_AGENTS
 from mani_skill.agents.base_agent import BaseAgent
 from mani_skill.agents.multi_agent import MultiAgent
@@ -1205,6 +1205,17 @@ class BaseEnv(gym.Env):
             state_dict["articulations"][art_id] = state[:, start : start + size]
             start += size
         self.set_state_dict(state_dict, env_idx)
+
+    def pack(self):
+        return self.get_state_dict(), self.agent.get_controller_state() if isinstance(self.agent, MultiAgent) else self.agent.controller.get_state()
+
+    def unpack(self, checkpoint):
+        state_dict, controller_state = checkpoint
+        self.set_state_dict(state_dict)
+        if isinstance(self.agent, MultiAgent):
+            self.agent.set_controller_state(controller_state)
+        else:
+            self.agent.controller.set_state(controller_state)
 
     # -------------------------------------------------------------------------- #
     # Visualization

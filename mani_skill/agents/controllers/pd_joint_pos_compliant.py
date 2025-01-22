@@ -179,13 +179,14 @@ class PDJointPosControllerCompliant(BaseController):
             self.set_drive_targets(targets)
 
     def get_state(self) -> dict:
-        if self.config.use_target:
+        if self.config.use_target or True:
             return {"target_qpos": self._target_qpos}
         return {}
 
     def set_state(self, state: dict):
-        if self.config.use_target:
+        if self.config.use_target or True:
             self._target_qpos = state["target_qpos"]
+            self.set_drive_targets(self._target_qpos)
 
 
 @dataclass

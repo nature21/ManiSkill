@@ -40,6 +40,11 @@ class PDJointVelController(BaseController):
             action, self.joints, self.active_joint_indices
         )
 
+    def get_state(self):
+        raise NotImplementedError
+
+    def set_state(self, state):
+        raise NotImplementedError
 
 @dataclass
 class PDJointVelControllerConfig(ControllerConfig):

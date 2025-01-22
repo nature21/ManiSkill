@@ -65,6 +65,12 @@ class PDJointPosVelControllerCustom(PDJointPosControllerCustom):
             targets = self._start_qpos + self._step_size * self._step
             self.set_drive_targets(targets, self._target_qvel)
 
+    def get_state(self):
+        raise NotImplementedError
+
+    def set_state(self, state):
+        raise NotImplementedError
+
 
 @dataclass
 class PDJointPosVelControllerCustomConfig(PDJointPosControllerCustomConfig):
