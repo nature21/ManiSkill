@@ -50,6 +50,8 @@ def main():
     env: BaseEnv = env.unwrapped
     print(f"Selected robot {args.robot_uid}. Control mode: {args.control_mode}")
     print("Selected Robot has the following keyframes to view: ")
+    print([joint.name for joint in env.agent.robot.active_joints])
+    print(env.agent.robot_link_names)
     print(env.agent.keyframes.keys())
     env.agent.robot.set_qpos(env.agent.robot.qpos * 0)
     kf = None

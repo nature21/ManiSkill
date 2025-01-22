@@ -12,18 +12,43 @@ from mani_skill.sensors.camera import CameraConfig
 class GalaxeaR1UpperBody(BaseAgent):
     uid = "galaxea_r1_upperbody"
     # urdf_path = f"{PACKAGE_ASSET_DIR}/robots/galaxea_r1/r1_upperbody.urdf"
-    urdf_path = f"{PACKAGE_ASSET_DIR}/robots/galaxea_r1/r1_upperbody_glb.urdf"
+    urdf_path = f"{PACKAGE_ASSET_DIR}/robots/galaxea_r1/r1_upperbody_coacd.urdf"
     load_multiple_collisions = True
 
     # you may need to use this modify the friction values of some links in order to make it possible to e.g. grasp objects or avoid sliding on the floor
     urdf_config = dict()
+    # ['torso_joint1', 'torso_joint2', 'torso_joint3', 'torso_joint4', 'left_arm_joint1', 'right_arm_joint1',
+    #  'left_arm_joint2', 'right_arm_joint2', 'left_arm_joint3', 'right_arm_joint3', 'left_arm_joint4',
+    #  'right_arm_joint4', 'left_arm_joint5', 'right_arm_joint5', 'left_arm_joint6', 'right_arm_joint6',
+    #  'left_gripper_axis1', 'left_gripper_axis2', 'right_gripper_axis1', 'right_gripper_axis2']
 
     keyframes = dict(
         rest=Keyframe(
             qpos=np.array(
-                [0.0]*16
+                [
+                    0.8, # torso_joint_1
+                    -1.4, # torso_joint_2
+                    -1.0, # torso_joint_3
+                    0.0, # torso_joint_4
+                    1.56, # left_arm_joint_1
+                    -1.56, # right_arm_joint_1
+                    2.94, # left_arm_joint_2
+                    2.94, # right_arm_joint_2
+                    -2.54, # left_arm_joint_3
+                    -2.54, # right_arm_joint_3
+                    0.0, # left_arm_joint_4
+                    0.0, # right_arm_joint_4
+                    0.0, # left_arm_joint_5
+                    0.0, # right_arm_joint_5
+                    0.0, # left_arm_joint_6
+                    0.0, # right_arm_joint_6
+                    0.0, # left_gripper_axis1
+                    0.0, # left_gripper_axis2
+                    0.0, # right_gripper_axis1
+                    0.0, # right_gripper_axis2
+                ]
             ),
-            pose=sapien.Pose(),
+            pose=sapien.Pose([-0.4, 0, -0.75]),
         )
     )
 
@@ -49,3 +74,7 @@ class GalaxeaR1UpperBody(BaseAgent):
     #             entity_uid="your_mounted_camera",
     #         )
     #     ]
+
+if __name__ == '__main__':
+    import mani_skill.examples.demo_robot as demo_robot_script
+    demo_robot_script.main()

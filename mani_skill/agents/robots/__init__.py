@@ -16,3 +16,4 @@ from .ur_e import UR10e
 from .widowx import *
 from .xarm import XArm7Ability
 from .xmate3 import Xmate3Robotiq
+from .galaxea_r1 import GalaxeaR1, GalaxeaR1UpperBody, GalaxeaR1LeftArm, GalaxeaR1RightArm

@@ -16,27 +16,31 @@ from mani_skill.utils.scene_builder import SceneBuilder
 
 # TODO (stao): make the build and initialize api consistent with other scenes
 class TableSceneBuilder(SceneBuilder):
-    def build(self):
+    def build(self, table_height=0.9196429):
         builder = self.scene.create_actor_builder()
         model_dir = Path(osp.dirname(__file__)) / "assets"
         table_model_file = str(model_dir / "table.glb")
-        scale = 1.75
+        scale = 1.75 * table_height / 0.9196429
 
         table_pose = sapien.Pose(q=euler2quat(0, 0, np.pi / 2))
-        builder.add_nonconvex_collision_from_file(
-            filename=table_model_file,
-            scale=[scale] * 3,
-            pose=table_pose,
-        )
+        # builder.add_nonconvex_collision_from_file(
+        #     filename=table_model_file,
+        #     scale=[scale] * 3,
+        #     pose=table_pose,
+        # )
         # builder.add_box_collision(
         #     pose=sapien.Pose(p=[0, 0, 0.9196429 / 2]),
         #     half_size=(2.418 / 2, 1.209 / 2, 0.9196429 / 2),
         # )
+        builder.add_box_collision(
+            pose=sapien.Pose(p=[0, 0, table_height / 2]),
+            half_size=(2.418 / 2 * table_height / 0.9196429, 1.209 / 2 * table_height / 0.9196429, table_height / 2),
+        )
         builder.add_visual_from_file(
             filename=table_model_file, scale=[scale] * 3, pose=table_pose
         )
         builder.initial_pose = sapien.Pose(
-            p=[-0.12, 0, -0.9196429], q=euler2quat(0, 0, np.pi / 2)
+            p=[-0.12, 0, -table_height], q=euler2quat(0, 0, np.pi / 2)
         )
         table = builder.build_kinematic(name="table-workspace")
         aabb = (
@@ -60,16 +64,28 @@ class TableSceneBuilder(SceneBuilder):
         # table_height = 0.9196429
         b = len(env_idx)
         self.table.set_pose(
-            sapien.Pose(p=[-0.12, 0, -0.9196429], q=euler2quat(0, 0, np.pi / 2))
+            sapien.Pose(p=[-0.12, 0, -self.table_height], q=euler2quat(0, 0, np.pi / 2))
         )
-        if self.env.robot_uids == "galaxea_r1":
-            qpos = self.env.agent.keyframes["rest"].qpos
-            self.env.agent.reset(qpos)
-            self.env.agent.robot.set_pose(sapien.Pose([-0.8, 0, -0.92]))
+        if self.env.robot_uids == ("galaxea_r1_left_arm", "galaxea_r1_right_arm"):
+            for agent in self.env.agent.agents:
+                qpos = agent.keyframes["rest"].qpos
+                pose = agent.keyframes["rest"].pose
+                agent.reset(qpos)
+                agent.robot.set_pose(pose)
+                agent.robot.set_joint_drive_targets(
+                    torch.from_numpy(qpos[np.newaxis,:]),
+                    agent.robot.get_active_joints()
+                )
+
         if self.env.robot_uids == "galaxea_r1_upperbody":
             qpos = self.env.agent.keyframes["rest"].qpos
+            pose = self.env.agent.keyframes["rest"].pose
             self.env.agent.reset(qpos)
-            self.env.agent.robot.set_pose(sapien.Pose([-0.8, 0, -0.92]))
+            self.env.agent.robot.set_pose(pose)
+            self.env.agent.robot.set_joint_drive_targets(
+                torch.from_numpy(qpos[np.newaxis, :]),
+                self.env.agent.robot.get_active_joints()
+            )
         if self.env.robot_uids == "panda":
             qpos = np.array(
                 [

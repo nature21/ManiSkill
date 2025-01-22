@@ -12,7 +12,7 @@ from mani_skill.sensors.camera import CameraConfig
 class GalaxeaR1(BaseAgent):
     uid = "galaxea_r1"
     # urdf_path = f"{PACKAGE_ASSET_DIR}/robots/galaxea_r1/r1.urdf"
-    urdf_path = f"{PACKAGE_ASSET_DIR}/robots/galaxea_r1/r1_upperbody_glb.urdf"
+    urdf_path = f"{PACKAGE_ASSET_DIR}/robots/galaxea_r1/r1_coacd.urdf"
     load_multiple_collisions = True
 
     # you may need to use this modify the friction values of some links in order to make it possible to e.g. grasp objects or avoid sliding on the floor
@@ -49,3 +49,7 @@ class GalaxeaR1(BaseAgent):
     #             entity_uid="your_mounted_camera",
     #         )
     #     ]
+
+if __name__ == '__main__':
+    import mani_skill.examples.demo_robot as demo_robot_script
+    demo_robot_script.main()
