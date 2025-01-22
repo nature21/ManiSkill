@@ -488,7 +488,6 @@ class RecordEpisode(gym.Wrapper):
                 self._trajectory_buffer.observation,
                 common.to_numpy(common.batch(obs)),
             )
-
             self._trajectory_buffer.action = common.append_dict_array(
                 self._trajectory_buffer.action,
                 common.to_numpy(common.batch(action)),
@@ -597,7 +596,7 @@ class RecordEpisode(gym.Wrapper):
                             # NOTE(jigu): It is more efficient to use gzip than png for a sequence of images.
                             group.create_dataset(
                                 "rgb",
-                                data=data[start_ptr:end_ptr, env_idx],
+                                data=data[start_ptr+1:end_ptr, env_idx],
                                 dtype=data.dtype,
                                 compression="gzip",
                                 compression_opts=5,
@@ -606,7 +605,7 @@ class RecordEpisode(gym.Wrapper):
                             # NOTE (stao): By default now cameras in ManiSkill return depth values of type uint16 for numpy
                             group.create_dataset(
                                 key,
-                                data=data[start_ptr:end_ptr, env_idx],
+                                data=data[start_ptr+1:end_ptr, env_idx],
                                 dtype=data.dtype,
                                 compression="gzip",
                                 compression_opts=5,
@@ -614,7 +613,7 @@ class RecordEpisode(gym.Wrapper):
                         elif key == "seg":
                             group.create_dataset(
                                 key,
-                                data=data[start_ptr:end_ptr, env_idx],
+                                data=data[start_ptr+1:end_ptr, env_idx],
                                 dtype=data.dtype,
                                 compression="gzip",
                                 compression_opts=5,
@@ -622,7 +621,7 @@ class RecordEpisode(gym.Wrapper):
                         else:
                             group.create_dataset(
                                 key,
-                                data=data[start_ptr:end_ptr, env_idx],
+                                data=data[start_ptr+1:end_ptr, env_idx],
                                 dtype=data.dtype,
                             )
 
@@ -663,20 +662,22 @@ class RecordEpisode(gym.Wrapper):
                     episode_info.update(reset_kwargs=dict())
 
                 # slice some data to remove the first dummy frame.
-                actions = common.index_dict_array(
-                    self._trajectory_buffer.action,
-                    (slice(start_ptr + 1, end_ptr), env_idx),
-                )
+
+                if isinstance(self._trajectory_buffer.action, dict):
+                    recursive_add_to_h5py(group, self._trajectory_buffer.action, "actions")
+                else:
+                    actions = common.index_dict_array(
+                        self._trajectory_buffer.action,
+                        (slice(start_ptr + 1, end_ptr), env_idx),
+                    )
+                    group.create_dataset("actions", data=actions, dtype=np.float32)
+
                 terminated = self._trajectory_buffer.terminated[
                     start_ptr + 1 : end_ptr, env_idx
                 ]
                 truncated = self._trajectory_buffer.truncated[
                     start_ptr + 1 : end_ptr, env_idx
                 ]
-                if isinstance(self._trajectory_buffer.action, dict):
-                    recursive_add_to_h5py(group, actions, "actions")
-                else:
-                    group.create_dataset("actions", data=actions, dtype=np.float32)
                 group.create_dataset("terminated", data=terminated, dtype=bool)
                 group.create_dataset("truncated", data=truncated, dtype=bool)
 
