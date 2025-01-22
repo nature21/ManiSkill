@@ -419,7 +419,7 @@
   </link>
   <joint
     name="torso_joint1"
-    type="fixed">
+    type="revolute">
     <origin
       xyz="-0.032845 0 0.301"
       rpy="-1.5708 0 0" />
@@ -477,7 +477,7 @@
   </link>
   <joint
     name="torso_joint2"
-    type="fixed">
+    type="revolute">
     <origin
       xyz="0 -0.4 0"
       rpy="0 0 0" />
@@ -535,7 +535,7 @@
   </link>
   <joint
     name="torso_joint3"
-    type="fixed">
+    type="revolute">
     <origin
       xyz="0 -0.3 0"
       rpy="0 0 0" />
@@ -593,7 +593,7 @@
   </link>
   <joint
     name="torso_joint4"
-    type="fixed">
+    type="revolute">
     <origin
       xyz="0 -0.12474 0"
       rpy="1.5708 0 0" />

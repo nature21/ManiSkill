@@ -18,7 +18,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/base_link.glb" />
+        <mesh filename="meshes_coacd/base_link.glb" />
       </geometry>
     </collision>
   </link>
@@ -40,7 +40,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/servo_link1.glb" />
+        <mesh filename="meshes_coacd/servo_link1.glb" />
       </geometry>
     </collision>
   </link>
@@ -69,7 +69,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/wheel_link1.glb" />
+        <mesh filename="meshes_coacd/wheel_link1.glb" />
       </geometry>
     </collision>
   </link>
@@ -97,7 +97,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/servo_link2.glb" />
+        <mesh filename="meshes_coacd/servo_link2.glb" />
       </geometry>
     </collision>
   </link>
@@ -126,7 +126,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/wheel_link2.glb" />
+        <mesh filename="meshes_coacd/wheel_link2.glb" />
       </geometry>
     </collision>
   </link>
@@ -154,7 +154,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/servo_link3.glb" />
+        <mesh filename="meshes_coacd/servo_link3.glb" />
       </geometry>
     </collision>
   </link>
@@ -183,7 +183,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/wheel_link3.glb" />
+        <mesh filename="meshes_coacd/wheel_link3.glb" />
       </geometry>
     </collision>
   </link>
@@ -211,11 +211,11 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/torso_link1.glb" />
+        <mesh filename="meshes_coacd/torso_link1.glb" />
       </geometry>
     </collision>
   </link>
-  <joint name="torso_joint1" type="fixed">
+  <joint name="torso_joint1" type="revolute">
     <origin xyz="-0.032845 0 0.301" rpy="-1.5708 0 0" />
     <parent link="base_link" />
     <child link="torso_link1" />
@@ -240,11 +240,11 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/torso_link2.glb" />
+        <mesh filename="meshes_coacd/torso_link2.glb" />
       </geometry>
     </collision>
   </link>
-  <joint name="torso_joint2" type="fixed">
+  <joint name="torso_joint2" type="revolute">
     <origin xyz="0 -0.4 0" rpy="0 0 0" />
     <parent link="torso_link1" />
     <child link="torso_link2" />
@@ -269,11 +269,11 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/torso_link3.glb" />
+        <mesh filename="meshes_coacd/torso_link3.glb" />
       </geometry>
     </collision>
   </link>
-  <joint name="torso_joint3" type="fixed">
+  <joint name="torso_joint3" type="revolute">
     <origin xyz="0 -0.3 0" rpy="0 0 0" />
     <parent link="torso_link2" />
     <child link="torso_link3" />
@@ -298,11 +298,11 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/torso_link4.glb" />
+        <mesh filename="meshes_coacd/torso_link4.glb" />
       </geometry>
     </collision>
   </link>
-  <joint name="torso_joint4" type="fixed">
+  <joint name="torso_joint4" type="revolute">
     <origin xyz="0 -0.12474 0" rpy="1.5708 0 0" />
     <parent link="torso_link3" />
     <child link="torso_link4" />
@@ -327,7 +327,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/zed_link.glb" />
+        <mesh filename="meshes_coacd/zed_link.glb" />
       </geometry>
     </collision>
   </link>
@@ -355,7 +355,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_arm_link1.glb" />
+        <mesh filename="meshes_coacd/left_arm_link1.glb" />
       </geometry>
     </collision>
   </link>
@@ -384,7 +384,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_arm_link2.glb" />
+        <mesh filename="meshes_coacd/left_arm_link2.glb" />
       </geometry>
     </collision>
   </link>
@@ -413,7 +413,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_arm_link3.glb" />
+        <mesh filename="meshes_coacd/left_arm_link3.glb" />
       </geometry>
     </collision>
   </link>
@@ -442,7 +442,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_arm_link4.glb" />
+        <mesh filename="meshes_coacd/left_arm_link4.glb" />
       </geometry>
     </collision>
   </link>
@@ -471,7 +471,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_arm_link5.glb" />
+        <mesh filename="meshes_coacd/left_arm_link5.glb" />
       </geometry>
     </collision>
   </link>
@@ -500,7 +500,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_arm_link6.glb" />
+        <mesh filename="meshes_coacd/left_arm_link6.glb" />
       </geometry>
     </collision>
   </link>
@@ -529,7 +529,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_realsense_link.glb" />
+        <mesh filename="meshes_coacd/left_realsense_link.glb" />
       </geometry>
     </collision>
   </link>
@@ -557,7 +557,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_gripper_link1.glb" />
+        <mesh filename="meshes_coacd/left_gripper_link1.glb" />
       </geometry>
     </collision>
   </link>
@@ -586,7 +586,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/left_gripper_link2.glb" />
+        <mesh filename="meshes_coacd/left_gripper_link2.glb" />
       </geometry>
     </collision>
   </link>
@@ -615,7 +615,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_arm_link1.glb" />
+        <mesh filename="meshes_coacd/right_arm_link1.glb" />
       </geometry>
     </collision>
   </link>
@@ -644,7 +644,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_arm_link2.glb" />
+        <mesh filename="meshes_coacd/right_arm_link2.glb" />
       </geometry>
     </collision>
   </link>
@@ -673,7 +673,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_arm_link3.glb" />
+        <mesh filename="meshes_coacd/right_arm_link3.glb" />
       </geometry>
     </collision>
   </link>
@@ -702,7 +702,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_arm_link4.glb" />
+        <mesh filename="meshes_coacd/right_arm_link4.glb" />
       </geometry>
     </collision>
   </link>
@@ -731,7 +731,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_arm_link5.glb" />
+        <mesh filename="meshes_coacd/right_arm_link5.glb" />
       </geometry>
     </collision>
   </link>
@@ -760,7 +760,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_arm_link6.glb" />
+        <mesh filename="meshes_coacd/right_arm_link6.glb" />
       </geometry>
     </collision>
   </link>
@@ -789,7 +789,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_realsense_link.glb" />
+        <mesh filename="meshes_coacd/right_realsense_link.glb" />
       </geometry>
     </collision>
   </link>
@@ -817,7 +817,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_gripper_link1.glb" />
+        <mesh filename="meshes_coacd/right_gripper_link1.glb" />
       </geometry>
     </collision>
   </link>
@@ -846,7 +846,7 @@
     <collision>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="meshes_glb/right_gripper_link2.glb" />
+        <mesh filename="meshes_coacd/right_gripper_link2.glb" />
       </geometry>
     </collision>
   </link>
