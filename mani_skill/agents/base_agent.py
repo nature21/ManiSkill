@@ -385,3 +385,23 @@ class BaseAgent:
             True if agent is static within the threshold. False otherwise
         """
         raise NotImplementedError()
+
+    def attach_object(self, attached_obj: Actor):
+        """
+        Attach an object to tcp
+        Args:
+            attached_obj: The object to attach
+        """
+
+        # create a joint and lock motion
+        self.attach_drive = self.scene.create_drive(
+            self.tcp, Pose.create_from_pq(None, None),
+            attached_obj, attached_obj.pose.inv() * self.tcp.pose
+        )
+        self.attach_drive.lock_motion()
+
+    def detach_object(self):
+        """
+        Detach an object from tcp
+        """
+        self.attach_drive.remove_drive()

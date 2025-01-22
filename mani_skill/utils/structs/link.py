@@ -264,6 +264,9 @@ class Link(PhysxRigidBodyComponentStruct[physx.PhysxArticulationLinkComponent]):
     def set_pose(self, arg1: Union[Pose, sapien.Pose]) -> None:
         self.pose = arg1
 
+    def get_pose(self) -> Pose:
+        return self.pose
+
     # -------------------------------------------------------------------------- #
     # Functions from physx.PhysxArticulationLinkComponent
     # -------------------------------------------------------------------------- #
