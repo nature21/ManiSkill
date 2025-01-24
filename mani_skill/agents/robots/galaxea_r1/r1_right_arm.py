@@ -84,6 +84,7 @@ class GalaxeaR1RightArm(GalaxeaR1Arm):
         self.finger2_link = sapien_utils.get_obj_by_name(
             self.robot.get_links(), "right_gripper_link2"
         )
+        super()._after_init()
         # self.tcp.set_collision_group_bit(group=2, bit_idx=31, bit=1)
         # self.tcp.set_collision_group_bit(group=3, bit_idx=31, bit=1)
         # self.finger1_link.set_collision_group_bit(group=2, bit_idx=31, bit=1)

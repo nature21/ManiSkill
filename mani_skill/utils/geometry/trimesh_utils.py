@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 ## TODO clean up the code here, too many functions that are plurals of one or the other and confusing naming
 import numpy as np
@@ -7,6 +7,9 @@ import sapien.physx as physx
 import sapien.render
 import trimesh
 import trimesh.creation
+import open3d as o3d
+
+from concepts.math.cad.mesh_utils import trimesh_to_open3d_mesh
 
 
 def get_component_meshes(component: physx.PhysxRigidBaseComponent):
@@ -125,6 +128,18 @@ def get_actor_mesh(actor: sapien.Entity, to_world_frame=True, visual=False) -> t
         T = actor.get_pose().to_transformation_matrix()
         mesh.apply_transform(T)
     return mesh
+
+
+def get_actor_pcd(actor: sapien.Entity, to_world_frame=True, visual=False, num_points=int(1e4), return_o3d: bool = True) -> Union[np.ndarray, o3d.geometry.PointCloud]:
+    mesh = get_actor_mesh(actor, to_world_frame, visual)
+    if mesh is None:
+        return None
+    mesh_o3d = trimesh_to_open3d_mesh(mesh)
+    o3d_pcd = mesh_o3d.sample_points_uniformly(num_points, use_triangle_normal=True)
+    if return_o3d:
+        return o3d_pcd
+    else:
+        return np.asarray(o3d_pcd.points)
 
 
 def get_articulation_meshes(

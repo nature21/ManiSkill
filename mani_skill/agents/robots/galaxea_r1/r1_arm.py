@@ -50,6 +50,11 @@ class GalaxeaR1Arm(BaseAgent):
 
         super().__init__(*args, **kwargs)
 
+    def _after_init(self):
+        self.zed_link = sapien_utils.get_obj_by_name(
+            self.robot.get_links(), "zed_link"
+        )
+
     @property
     def _controller_configs(self):
         # -------------------------------------------------------------------------- #
