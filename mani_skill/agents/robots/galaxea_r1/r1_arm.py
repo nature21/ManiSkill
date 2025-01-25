@@ -3,11 +3,10 @@ from copy import deepcopy
 import numpy as np
 import sapien
 
-from mani_skill import PACKAGE_ASSET_DIR
-from mani_skill.agents.base_agent import BaseAgent, Keyframe
+from mani_skill.utils.structs import Link
+from mani_skill.agents.base_agent import BaseAgent
 from mani_skill.agents.controllers import *
 from mani_skill.agents.registration import register_agent
-from mani_skill.sensors.camera import CameraConfig
 from mani_skill.utils import sapien_utils
 
 
@@ -47,6 +46,8 @@ class GalaxeaR1Arm(BaseAgent):
         self.gripper_stiffness = 1e3
         self.gripper_damping = 1e2
         self.gripper_force_limit = 100
+
+        self.tcp: Link = None
 
         super().__init__(*args, **kwargs)
 
