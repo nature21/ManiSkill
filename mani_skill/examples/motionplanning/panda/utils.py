@@ -9,14 +9,17 @@ from mani_skill.utils import common
 from mani_skill.utils.geometry.trimesh_utils import get_component_mesh
 
 
-def get_actor_obb(actor: Actor, to_world_frame=True, vis=False):
+def get_actor_obb(actor: Actor, to_world_frame=True, vis=False, oriented=True) -> trimesh.primitives.Box:
     mesh = get_component_mesh(
         actor._objs[0].find_component_by_type(physx.PhysxRigidDynamicComponent),
         to_world_frame=to_world_frame,
     )
     assert mesh is not None, "can not get actor mesh for {}".format(actor)
 
-    obb: trimesh.primitives.Box = mesh.bounding_box_oriented
+    if oriented:
+        obb: trimesh.primitives.Box = mesh.bounding_box_oriented
+    else:
+        obb: trimesh.primitives.Box = mesh.bounding_box
 
     if vis:
         obb.visual.vertex_colors = (255, 0, 0, 10)

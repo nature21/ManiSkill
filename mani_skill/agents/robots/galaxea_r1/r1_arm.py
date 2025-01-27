@@ -118,7 +118,8 @@ class GalaxeaR1Arm(BaseAgent):
         # However, tune a good force limit to have a good mimic behavior
         gripper_pd_joint_pos = PDJointPosMimicControllerConfig(
             self.gripper_joint_names,
-            -0.01,  # a trick to have force when the object is thin
+            # 0.01,  # a trick to have force when the object is thin
+            0.009,
             0.05,
             self.gripper_stiffness,
             self.gripper_damping,
@@ -162,7 +163,7 @@ class GalaxeaR1Arm(BaseAgent):
         return deepcopy_dict(controller_configs)
 
     @staticmethod
-    def build_grasp_pose(approaching, closing, center):
+    def build_grasp_pose(approaching, closing, center) -> sapien.Pose:
         """Build a grasp pose (panda_hand_tcp)."""
         assert np.abs(1 - np.linalg.norm(approaching)) < 1e-3
         assert np.abs(1 - np.linalg.norm(closing)) < 1e-3
