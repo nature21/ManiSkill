@@ -1,5 +1,5 @@
 defaults:
-  - task: PickCube-v1
+  - task: PushCube-v1
 
 name: train_simple_dp3
 
