@@ -112,9 +112,9 @@ def main(args):
                 'qvel': observation['agent']['qvel'][episode_idx],
             }
             extra_idx = {
-                'is_grasped': observation['extra']['is_grasped'][episode_idx],
+                # 'is_grasped': observation['extra']['is_grasped'][episode_idx],
                 'tcp_pose': observation['extra']['tcp_pose'][episode_idx],
-                'goal_pose': observation['extra']['goal_pos'][episode_idx],
+                # 'goal_pose': observation['extra']['goal_pos'][episode_idx],
             }
             observation_idx = {
                 'agent': agent_idx,
