@@ -44,6 +44,11 @@ class FlattenPoindCloudObservationWrapper(gym.ObservationWrapper):
         if "sensor_data" in observation:
             del observation["sensor_data"]
 
+        if 'is_grasped' in observation['extra']:
+            del observation['extra']['is_grasped']
+        if 'goal_pos' in observation['extra']:
+            del observation['extra']['goal_pos']
+            
         state = common.flatten_state_dict(
             observation, use_torch=True, device=self.base_env.device
         ) # [29] including joint positions [7+2], velocities [7+2], goal position [3], end-effector pose [7], is_grasped [1]
