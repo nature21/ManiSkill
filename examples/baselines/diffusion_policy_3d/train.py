@@ -183,8 +183,8 @@ class TrainDP3Workspace:
 
         # training loop
         log_path = os.path.join(self.output_dir, 'logs.json.txt')
+        step_log = {}
         for local_epoch_idx in range(cfg.training.num_epochs):
-            step_log = dict()
             # ========= train for this epoch ==========
             train_losses = list()
             with tqdm.tqdm(train_dataloader, desc=f"Training epoch {self.epoch}",
@@ -218,12 +218,18 @@ class TrainDP3Workspace:
                     raw_loss_cpu = raw_loss.item()
                     tepoch.set_postfix(loss=raw_loss_cpu, refresh=False)
                     train_losses.append(raw_loss_cpu)
-                    step_log = {
+                    # step_log = {
+                    #     'train_loss': raw_loss_cpu,
+                    #     'global_step': self.global_step,
+                    #     'epoch': self.epoch,
+                    #     'lr': lr_scheduler.get_last_lr()[0]
+                    # }
+                    step_log.update({
                         'train_loss': raw_loss_cpu,
                         'global_step': self.global_step,
                         'epoch': self.epoch,
                         'lr': lr_scheduler.get_last_lr()[0]
-                    }
+                    })
                     t1_5 = time.time()
                     step_log.update(loss_dict)
                     t2 = time.time()
@@ -336,7 +342,7 @@ class TrainDP3Workspace:
             wandb_run.log(step_log, step=self.global_step)
             self.global_step += 1
             self.epoch += 1
-            del step_log
+            # del step_log
 
     def eval(self):
         # load the latest checkpoint

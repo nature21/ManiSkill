@@ -9,7 +9,7 @@ import os
 
 def visualize_pointcloud(pointcloud, color: tuple = None):
     vis = Visualizer()
-    vis.visualize_pointcloud_and_save(pointcloud, color=color, save_path='/root/ManiSkill/examples/baselines/diffusion_policy_3d/data/pointcloud.png')
+    vis.visualize_pointcloud_and_save(pointcloud, color=color, save_path='/home/yuyao/abc/ManiSkill/examples/baselines/diffusion_policy_3d/data/pointcloud.png')
 
 
 class Visualizer:

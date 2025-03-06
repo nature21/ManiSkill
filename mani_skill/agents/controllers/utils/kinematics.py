@@ -3,7 +3,13 @@ Code for kinematics utilities on CPU/GPU
 """
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from os import devnull
-from typing import List
+from typing import List, Union
+
+import numpy as np
+from sapien import PinocchioModel
+from sapien.pysapien.physx import PhysxArticulation
+
+from mani_skill.utils.structs import Articulation
 
 try:
     import pytorch_kinematics as pk
@@ -184,3 +190,50 @@ class Kinematics:
                 )
             else:
                 return None
+
+
+def prepare_pinocchio_model(
+        robot: Union[Articulation, PhysxArticulation, PinocchioModel], qpos=None
+) -> tuple[PinocchioModel, np.ndarray]:
+    if isinstance(robot, PinocchioModel):
+        pinocchio_model = robot
+        assert qpos is not None, "qpos must be provided when using PinocchioModel"
+    else:
+        pinocchio_model = robot.create_pinocchio_model()
+    if qpos is None:
+        qpos = robot.get_qpos()
+    else:
+        if qpos.shape[-1] == 7:
+            zeros_shape = list(qpos.shape)
+            zeros_shape[-1] = 2
+            if isinstance(qpos, np.ndarray):
+                qpos = np.concatenate([qpos, np.zeros(zeros_shape)], axis=-1)
+            elif isinstance(qpos, torch.Tensor):
+                qpos = torch.cat([qpos, torch.zeros(zeros_shape)], dim=-1)
+    qpos = np.asarray(qpos).reshape(-1, 1)
+    return pinocchio_model, qpos
+
+
+def compute_forward_kinematics(
+        robot: Union[Articulation, PhysxArticulation, PinocchioModel], link_id: int, qpos=None
+):
+    pinocchio_model, qpos = prepare_pinocchio_model(robot, qpos)
+    pinocchio_model.compute_forward_kinematics(qpos)
+    return pinocchio_model.get_link_pose(link_id)
+
+
+def compute_jacobian(
+        robot: Union[Articulation, PhysxArticulation, PinocchioModel], link_id: int, qpos=None, local=False
+) -> np.ndarray[np. float64]:
+    """
+    Returns:
+        np.ndarray[np.float64[6, n]]: The Jacobian matrix of the end effector
+    """
+    pinocchio_model, qpos = prepare_pinocchio_model(robot, qpos)
+    if local:
+        jacobian = pinocchio_model.compute_single_link_local_jacobian(qpos, link_id)
+    else:
+        pinocchio_model.compute_full_jacobian(qpos)
+        jacobian = pinocchio_model.get_link_jacobian(link_id, local=local)
+
+    return jacobian[:, :7]

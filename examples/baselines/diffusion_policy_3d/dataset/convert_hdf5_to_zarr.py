@@ -64,7 +64,7 @@ def main(args):
         total_count_sub = 0
 
         L = trajectories['actions'][demo_idx].shape[0]
-        assert len(trajectories['observations'][demo_idx]['pointcloud']['xyzw']) == L + 1
+        assert len(trajectories['observations'][demo_idx]['pointcloud']['xyzw']) == L, f'num of obs: {len(trajectories["observations"][demo_idx]["pointcloud"]["xyzw"])} != num of actions: {L}'
         num_episodes = trajectories['actions'][demo_idx].shape[0]
 
         # loop over episodes for each trajectory
@@ -94,9 +94,25 @@ def main(args):
             if obs_point_cloud.shape[0] > num_points:
                 obs_point_cloud = downsample_with_fps(obs_point_cloud, num_points=num_points)
 
+            # import open3d as o3d
+            # pcd = o3d.geometry.PointCloud()
+            # pcd.points = o3d.utility.Vector3dVector(obs_point_cloud[:, :3])
+            # pcd.colors = o3d.utility.Vector3dVector(obs_point_cloud[:, 3:6]/255.0)
+            # vis = o3d.visualization.Visualizer()
+            # vis.create_window(window_name='White Background', width=800, height=600)
+            # vis.add_geometry(pcd)
+            #
+            # # Get the render options and set the background color to white
+            # render_option = vis.get_render_option()
+            # render_option.background_color = np.asarray([0.5]*3)  # White
+            #
+            # vis.run()
+            # vis.destroy_window()
+
             # Process action [7]
             action = trajectories['actions'][demo_idx][episode_idx] # [-1,1]
 
+            # TODO: write this into cfg
             # Process robot state [29]
             # including joint positions [7+2], velocities [7+2], goal position [3], end-effector pose [7], is_grasped [1]
             observation = trajectories['observations'][demo_idx]
@@ -112,9 +128,9 @@ def main(args):
                 'qvel': observation['agent']['qvel'][episode_idx],
             }
             extra_idx = {
-                # 'is_grasped': observation['extra']['is_grasped'][episode_idx],
+                'is_grasped': observation['extra']['is_grasped'][episode_idx],
                 'tcp_pose': observation['extra']['tcp_pose'][episode_idx],
-                # 'goal_pose': observation['extra']['goal_pos'][episode_idx],
+                'goal_pose': observation['extra']['goal_pos'][episode_idx],
             }
             observation_idx = {
                 'agent': agent_idx,

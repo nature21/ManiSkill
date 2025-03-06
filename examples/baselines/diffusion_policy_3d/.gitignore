@@ -1,1 +1,4 @@
 data/
+third_party
+/runs/
+/wandb/

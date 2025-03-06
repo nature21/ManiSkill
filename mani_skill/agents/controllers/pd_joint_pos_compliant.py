@@ -6,7 +6,7 @@ import sapien
 import torch
 from gymnasium import spaces
 
-from abc_pickup_extra.sapien3.kinematics_utils import compute_forward_kinematics, compute_jacobian
+from mani_skill.agents.controllers.utils.kinematics import compute_forward_kinematics, compute_jacobian
 from concepts.math.rotationlib_wxyz import quat2axisangle
 from mani_skill.agents.controllers.base_controller import BaseController, ControllerConfig
 from mani_skill.utils import common

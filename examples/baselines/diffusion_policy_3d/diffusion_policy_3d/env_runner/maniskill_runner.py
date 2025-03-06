@@ -227,6 +227,22 @@ class ManiSkillRunner(BaseRunner):
             obs, _ = env.reset(seed=0)
             policy.reset()
 
+            # import open3d as o3d
+            # pcd = o3d.geometry.PointCloud()
+            # pcd.points = o3d.utility.Vector3dVector(obs['point_cloud'][-1, :, :3])
+            # pcd.colors = o3d.utility.Vector3dVector(obs['point_cloud'][-1, :, 3:6]/255.0)
+            # vis = o3d.visualization.Visualizer()
+            # vis.create_window(window_name='White Background', width=800, height=600)
+            # vis.add_geometry(pcd)
+            #
+            # # Get the render options and set the background color to white
+            # render_option = vis.get_render_option()
+            # render_option.background_color = np.asarray([0.5]*3)  # White
+            #
+            # vis.run()
+            # vis.destroy_window()
+
+
             done = False
             traj_reward = 0
             is_success = False
