@@ -13,6 +13,7 @@ import torch
 from mani_skill import get_commit_info
 from mani_skill.envs.sapien_env import BaseEnv
 from mani_skill.utils import common, gym_utils, sapien_utils
+from mani_skill.utils.common import DictArrayBuffer
 from mani_skill.utils.io_utils import dump_json
 from mani_skill.utils.logging_utils import logger
 from mani_skill.utils.structs.types import Array
@@ -99,7 +100,8 @@ def clean_trajectories(h5_file: h5py.File, json_dict: dict, prune_empty_action=T
 @dataclass
 class Step:
     state: np.ndarray
-    observation: np.ndarray
+    observation: DictArrayBuffer
+    # observation: np.ndarray
     action: np.ndarray
     reward: np.ndarray
     terminated: np.ndarray
@@ -395,6 +397,7 @@ class RecordEpisode(gym.Wrapper):
                         f"State dictionary is not consistent, disabling recording of environment states for {self.env}"
                     )
                     self._already_warned_about_state_dict_inconsistency = True
+
             if isinstance(action, dict):
                 action_repeated = action.copy()
                 for key in action_repeated:
@@ -402,9 +405,11 @@ class RecordEpisode(gym.Wrapper):
                 action_numpy = common.to_numpy(common.batch(action_repeated))
             else:
                 action_numpy = common.to_numpy(common.batch(action.repeat(self.num_envs, 0)))
+
             first_step = Step(
                 state=None,
-                observation=common.to_numpy(common.batch(obs)),
+                observation=DictArrayBuffer(),
+                # observation=common.to_numpy(common.batch(obs)),
                 # note first reward/action etc. are ignored when saving trajectories to disk
                 action=action_numpy,
                 reward=np.zeros(
@@ -423,6 +428,9 @@ class RecordEpisode(gym.Wrapper):
                 fail=np.zeros((1, self.num_envs), dtype=bool),
                 env_episode_ptr=np.zeros((self.num_envs,), dtype=int),
             )
+
+            first_step.observation.append(common.to_numpy(common.batch(obs)))
+
             if self.record_env_state:
                 first_step.state = common.to_numpy(common.batch(state_dict))
             env_idx = np.arange(self.num_envs)
@@ -484,10 +492,12 @@ class RecordEpisode(gym.Wrapper):
                     self._trajectory_buffer.state,
                     common.to_numpy(common.batch(state_dict)),
                 )
-            self._trajectory_buffer.observation = common.append_dict_array(
-                self._trajectory_buffer.observation,
-                common.to_numpy(common.batch(obs)),
-            )
+            # self._trajectory_buffer.observation = common.append_dict_array(
+            #     self._trajectory_buffer.observation,
+            #     common.to_numpy(common.batch(obs)),
+            # )
+            self._trajectory_buffer.observation.append(common.to_numpy(common.batch(obs)))
+
             self._trajectory_buffer.action = common.append_dict_array(
                 self._trajectory_buffer.action,
                 common.to_numpy(common.batch(action)),
@@ -569,6 +579,9 @@ class RecordEpisode(gym.Wrapper):
             env_idxs_to_flush: which environments by id to flush. If None, all environments are flushed.
             save (bool): whether to save the trajectory to disk
         """
+        print('' * 20)
+        print("Flushing trajectory ...")
+
         flush_count = 0
         if env_idxs_to_flush is None:
             env_idxs_to_flush = np.arange(0, self.num_envs)
@@ -596,7 +609,7 @@ class RecordEpisode(gym.Wrapper):
                             # NOTE(jigu): It is more efficient to use gzip than png for a sequence of images.
                             group.create_dataset(
                                 "rgb",
-                                data=data[start_ptr+1:end_ptr, env_idx],
+                                data=data[start_ptr:end_ptr, env_idx],
                                 dtype=data.dtype,
                                 compression="gzip",
                                 compression_opts=5,
@@ -605,7 +618,7 @@ class RecordEpisode(gym.Wrapper):
                             # NOTE (stao): By default now cameras in ManiSkill return depth values of type uint16 for numpy
                             group.create_dataset(
                                 key,
-                                data=data[start_ptr+1:end_ptr, env_idx],
+                                data=data[start_ptr:end_ptr, env_idx],
                                 dtype=data.dtype,
                                 compression="gzip",
                                 compression_opts=5,
@@ -613,7 +626,7 @@ class RecordEpisode(gym.Wrapper):
                         elif key == "seg":
                             group.create_dataset(
                                 key,
-                                data=data[start_ptr+1:end_ptr, env_idx],
+                                data=data[start_ptr:end_ptr, env_idx],
                                 dtype=data.dtype,
                                 compression="gzip",
                                 compression_opts=5,
@@ -621,11 +634,13 @@ class RecordEpisode(gym.Wrapper):
                         else:
                             group.create_dataset(
                                 key,
-                                data=data[start_ptr+1:end_ptr, env_idx],
+                                data=data[start_ptr:end_ptr, env_idx],
                                 dtype=data.dtype,
                             )
 
                 # Observations need special processing
+                self._trajectory_buffer.observation = self._trajectory_buffer.observation.stack()
+
                 if isinstance(self._trajectory_buffer.observation, dict):
                     recursive_add_to_h5py(
                         group, self._trajectory_buffer.observation, "obs"
@@ -662,22 +677,20 @@ class RecordEpisode(gym.Wrapper):
                     episode_info.update(reset_kwargs=dict())
 
                 # slice some data to remove the first dummy frame.
-
-                if isinstance(self._trajectory_buffer.action, dict):
-                    recursive_add_to_h5py(group, self._trajectory_buffer.action, "actions")
-                else:
-                    actions = common.index_dict_array(
-                        self._trajectory_buffer.action,
-                        (slice(start_ptr + 1, end_ptr), env_idx),
-                    )
-                    group.create_dataset("actions", data=actions, dtype=np.float32)
-
+                actions = common.index_dict_array(
+                    self._trajectory_buffer.action,
+                    (slice(start_ptr + 1, end_ptr), env_idx),
+                )
                 terminated = self._trajectory_buffer.terminated[
                     start_ptr + 1 : end_ptr, env_idx
                 ]
                 truncated = self._trajectory_buffer.truncated[
                     start_ptr + 1 : end_ptr, env_idx
                 ]
+                if isinstance(self._trajectory_buffer.action, dict):
+                    recursive_add_to_h5py(group, actions, "actions")
+                else:
+                    group.create_dataset("actions", data=actions, dtype=np.float32)
                 group.create_dataset("terminated", data=terminated, dtype=bool)
                 group.create_dataset("truncated", data=truncated, dtype=bool)
 
@@ -716,7 +729,7 @@ class RecordEpisode(gym.Wrapper):
                         dtype=np.float32,
                     )
 
-                self._json_data["episodes"].append(episode_info)
+                self._json_data["episodes"].append(common.to_numpy(episode_info))
                 dump_json(self._json_path, self._json_data, indent=2)
                 if verbose:
                     if flush_count == 1:

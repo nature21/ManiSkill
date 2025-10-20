@@ -3,7 +3,7 @@ Common utilities often reused for internal code and task building for users.
 """
 
 from collections import defaultdict
-from typing import Dict, Optional, Sequence, Tuple, Union, Any
+from typing import Dict, Optional, Sequence, Tuple, Union
 
 import gymnasium as gym
 import numpy as np
@@ -15,6 +15,25 @@ from mani_skill.utils.structs.types import Array, Device
 # -------------------------------------------------------------------------- #
 # Utilities for working with tensors, numpy arrays, and batched data
 # -------------------------------------------------------------------------- #
+
+
+def torch_clone_dict(data: dict) -> dict:
+    """
+    Recursively clones all torch tensors in a dictionary.
+    If the input was a torch tensor, it will return a clone of the tensor.
+    """
+    if isinstance(data, torch.Tensor):
+        return data.clone()
+
+    output_dict = {}
+    for key, value in data.items():
+        if isinstance(value, dict):
+            output_dict[key] = torch_clone_dict(value)
+        elif isinstance(value, torch.Tensor):
+            output_dict[key] = value.clone()
+        else:
+            output_dict[key] = value
+    return output_dict
 
 
 def _batch(array: Union[Array, Sequence]):
@@ -41,7 +60,7 @@ def _batch(array: Union[Array, Sequence]):
     return array
 
 
-def batch(*args: Union[Tuple[Union[Array, Sequence]], dict[Any, Union[Array, Sequence]]]):
+def batch(*args: Tuple[Union[Array, Sequence]]):
     """Adds one dimension in front of everything. If given a dictionary, every leaf in the dictionary
     has a new dimension. If given a tuple, returns the same tuple with each element batched"""
     x = [_batch(x) for x in args]
@@ -103,6 +122,34 @@ def append_dict_array(
     return x1
 
 
+class DictArrayBuffer:
+    def __init__(self):
+        self._buffer = {}
+
+    def append(self, data: Union[dict, np.ndarray]):
+        """Recursively append data into internal nested lists."""
+        def _append_rec(buf, d):
+            if isinstance(d, dict):
+                for k, v in d.items():
+                    if k not in buf:
+                        buf[k] = {}
+                    _append_rec(buf[k], v)
+            else:
+                buf.setdefault('__leaf__', []).append(d)
+        _append_rec(self._buffer, data)
+
+    def stack(self):
+        """Recursively stack all internal lists into numpy arrays."""
+        def _stack_rec(buf):
+            if '__leaf__' in buf:
+                return np.stack(buf['__leaf__'])
+            return {k: _stack_rec(v) for k, v in buf.items()}
+        return _stack_rec(self._buffer)
+
+    def clear(self):
+        self._buffer = {}
+
+
 def index_dict_array(x1, idx: Union[int, slice], inplace=True):
     """Indexes every array in x1 with slice and returns result."""
     if (
@@ -160,7 +207,7 @@ def to_cpu_tensor(array: Array):
     Maps any given sequence to a torch tensor on the CPU.
     """
     if isinstance(array, (dict)):
-        return {k: to_tensor(v) for k, v in array.items()}
+        return {k: to_cpu_tensor(v) for k, v in array.items()}
     if isinstance(array, np.ndarray):
         ret = torch.from_numpy(array)
         if ret.dtype == torch.float64:

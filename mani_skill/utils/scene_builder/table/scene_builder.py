@@ -16,7 +16,7 @@ from mani_skill.utils.scene_builder import SceneBuilder
 
 # TODO (stao): make the build and initialize api consistent with other scenes
 class TableSceneBuilder(SceneBuilder):
-    def build(self, table_height=0.9196429):
+    def build(self, table_height=0.9196429, material=None):
         builder = self.scene.create_actor_builder()
         model_dir = Path(osp.dirname(__file__)) / "assets"
         table_model_file = str(model_dir / "table.glb")
@@ -37,7 +37,7 @@ class TableSceneBuilder(SceneBuilder):
             half_size=(2.418 / 2 * table_height / 0.9196429, 1.209 / 2 * table_height / 0.9196429, table_height / 2),
         )
         builder.add_visual_from_file(
-            filename=table_model_file, scale=[scale] * 3, pose=table_pose
+            filename=table_model_file, scale=[scale] * 3, pose=table_pose, material=material
         )
         builder.initial_pose = sapien.Pose(
             p=[-0.12, 0, -table_height], q=euler2quat(0, 0, np.pi / 2)
