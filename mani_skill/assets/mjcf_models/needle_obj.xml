@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="needle">
+  <asset>
+    <texture type="cube" name="needle_obj_darkwood" file="./dark-wood.png" />
+    <material name="needle_obj_darkwood_mat" texture="needle_obj_darkwood" specular="0.4" shininess="0.1" />
+  </asset>
+  <worldbody>
+    <body name="needle_obj_root">
+      <!-- <joint name="needle_obj_joint0" type="free" limited="false" actuatorfrclimited="false" /> -->
+      <geom name="needle_obj_needle" size="0.005 0.06 0.005" pos="0 -0.02 0" type="box" friction="0.3" density="100" material="needle_obj_darkwood_mat"/>
+      <geom name="needle_obj_handle" size="0.02 0.02 0.02" pos="0 0.06 0" type="box" density="100" material="needle_obj_darkwood_mat"/>
+    </body>
+  </worldbody>
+</mujoco>

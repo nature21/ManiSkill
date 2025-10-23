@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="tripod">
+  <asset>
+    <texture type="cube" name="tripod_obj_lightwood" file="./light-wood.png" />
+    <material name="tripod_obj_lightwood_mat" texture="tripod_obj_lightwood" specular="0.4" shininess="0.1" />
+  </asset>
+  <worldbody>
+    <body name="tripod_obj_root">
+      <!-- <joint name="tripod_obj_joint0" type="free" limited="false" actuatorfrclimited="false" /> -->
+      <geom name="tripod_obj_ring_0" size="0.005 0.002 0.002" pos="0 -0.01 0.078" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_1" size="0.005 0.002 0.002" pos="0 -0.006 0.078" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_2" size="0.005 0.002 0.002" pos="0 -0.002 0.078" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_3" size="0.005 0.002 0.002" pos="0 0.002 0.078" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_4" size="0.005 0.002 0.002" pos="0 0.006 0.078" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_5" size="0.005 0.002 0.002" pos="0 0.01 0.078" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_6" size="0.005 0.002 0.002" pos="0 -0.01 0.082" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_7" size="0.005 0.002 0.002" pos="0 0.01 0.082" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_8" size="0.005 0.002 0.002" pos="0 -0.01 0.086" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_9" size="0.005 0.002 0.002" pos="0 0.01 0.086" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_10" size="0.005 0.002 0.002" pos="0 -0.01 0.09" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_11" size="0.005 0.002 0.002" pos="0 0.01 0.09" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_12" size="0.005 0.002 0.002" pos="0 -0.01 0.094" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_13" size="0.005 0.002 0.002" pos="0 0.01 0.094" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_14" size="0.005 0.002 0.002" pos="0 -0.01 0.098" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_15" size="0.005 0.002 0.002" pos="0 -0.006 0.098" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_16" size="0.005 0.002 0.002" pos="0 -0.002 0.098" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_17" size="0.005 0.002 0.002" pos="0 0.002 0.098" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_18" size="0.005 0.002 0.002" pos="0 0.006 0.098" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_ring_19" size="0.005 0.002 0.002" pos="0 0.01 0.098" type="box" friction="0.3" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_tripod_0" size="0.01 0.03" pos="-0.04 -0.04 -0.06" quat="0.965926 -0.183013 0.183013 -2.98023e-08" type="capsule" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_tripod_1" size="0.01 0.03" pos="-0.04 0.04 -0.06" quat="0.965926 0.183013 0.183013 -2.98023e-08" type="capsule" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_tripod_2" size="0.01 0.03" pos="0.04 0 -0.06" quat="0.965926 0 -0.258819 0" type="capsule" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_post_0" size="0.05 0.05 0.005" pos="0 0 -0.015" type="box" density="100" material="tripod_obj_lightwood_mat" />
+      <geom name="tripod_obj_post_1" size="0.005 0.005 0.043" pos="0 0 0.033" type="box" density="100" material="tripod_obj_lightwood_mat" />
+    </body>
+  </worldbody>
+</mujoco>
