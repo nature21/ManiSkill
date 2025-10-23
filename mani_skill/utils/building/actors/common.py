@@ -100,12 +100,16 @@ def build_cylinder(
     add_collision: bool = True,
     scene_idxs: Optional[Array] = None,
     initial_pose: Optional[Union[Pose, sapien.Pose]] = None,
+    material: PhysxMaterial=None,
+    density: float = 1000,
 ):
     builder = scene.create_actor_builder()
     if add_collision:
         builder.add_cylinder_collision(
             radius=radius,
             half_length=half_length,
+            material=material,
+            density=density
         )
     builder.add_cylinder_visual(
         radius=radius,
