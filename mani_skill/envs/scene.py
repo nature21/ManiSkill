@@ -170,7 +170,7 @@ class ManiSkillScene:
                 "Cannot remove actors after creating them in GPU sim at the moment"
             )
         else:
-            self.sub_scenes[0].remove_entity(actor._objs[0].entity)
+            self.sub_scenes[0].remove_entity(actor._objs[0])
             self.actors.pop(actor.name)
 
     def remove_articulation(self, articulation: Articulation):
