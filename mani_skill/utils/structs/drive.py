@@ -199,6 +199,7 @@ class Drive(PhysxJointComponentStruct[physx.PhysxDriveComponent]):
     @before_gpu_init
     def remove_drive(self):
         for drive in self._objs:
-            child_entity = drive.entity
-            child_entity.remove_component(drive)
+            # child_entity = drive.entity
+            # child_entity.remove_component(drive)
+            drive.disable()
         self._objs = []
