@@ -819,7 +819,7 @@ class RecordEpisode(gym.Wrapper):
                             video_name += "_" + suffix
             else:
                 video_name = name
-            images_to_video(
+            output_path = images_to_video(
                 self.render_images,
                 str(self.output_dir),
                 video_name=video_name,
@@ -828,6 +828,8 @@ class RecordEpisode(gym.Wrapper):
             )
         self._video_steps = 0
         self.render_images = []
+        if save:
+            return output_path
 
     def close(self) -> None:
         if self._closed:

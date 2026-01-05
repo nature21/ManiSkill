@@ -49,6 +49,7 @@ def images_to_video(
     for im in images_iter:
         writer.append_data(im)
     writer.close()
+    return output_path
 
 
 def tile_images(images: List[Array], nrows=1) -> Array:
